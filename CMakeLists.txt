@@ -30,13 +30,24 @@ endif ()
 
 # update submodules
 execute_process(COMMAND git submodule update --init -- cld2
-                WORKING_DIRECTORY src/3rd_party)
+        WORKING_DIRECTORY src/3rd_party)
 
 add_executable(mono src/mono/mono.cpp)
 target_link_libraries(mono ${Boost_LIBRARIES})
 
 add_executable(readwarc src/mono/readwarc.cpp)
 target_link_libraries(readwarc ${Boost_LIBRARIES})
+
+# cld2
+set(CLD2_DIR "src/3rd_party/cld2")
+set(CLD2_DIR_INT "src/3rd_party/cld2/internal")
+include_directories("${CLD2_DIR}/internal")
+include_directories("${CLD2_DIR}/public")
+set(libcld2_full_files ${CLD2_DIR_INT}/cldutil.cc ${CLD2_DIR_INT}/cldutil_shared.cc ${CLD2_DIR_INT}/compact_lang_det.cc ${CLD2_DIR_INT}/compact_lang_det_hint_code.cc ${CLD2_DIR_INT}/compact_lang_det_impl.cc ${CLD2_DIR_INT}/debug.cc ${CLD2_DIR_INT}/fixunicodevalue.cc ${CLD2_DIR_INT}/generated_entities.cc ${CLD2_DIR_INT}/generated_language.cc ${CLD2_DIR_INT}/generated_ulscript.cc ${CLD2_DIR_INT}/getonescriptspan.cc ${CLD2_DIR_INT}/lang_script.cc ${CLD2_DIR_INT}/offsetmap.cc ${CLD2_DIR_INT}/scoreonescriptspan.cc ${CLD2_DIR_INT}/tote.cc ${CLD2_DIR_INT}/utf8statetable.cc ${CLD2_DIR_INT}/cld_generated_cjk_uni_prop_80.cc ${CLD2_DIR_INT}/cld2_generated_cjk_compatible.cc ${CLD2_DIR_INT}/cld_generated_cjk_delta_bi_32.cc ${CLD2_DIR_INT}/generated_distinct_bi_0.cc ${CLD2_DIR_INT}/cld2_generated_quad0122.cc ${CLD2_DIR_INT}/cld2_generated_deltaocta0122.cc ${CLD2_DIR_INT}/cld2_generated_distinctocta0122.cc ${CLD2_DIR_INT}/cld_generated_score_quad_octa_0122.cc)
+file(GLOB libcld2_full_glob ${libcld2_full_files})
+
+add_executable(langsplit src/langsplit/langsplit.cpp)
+target_link_libraries(langsplit ${libcld2_full_glob})
 
 
 # build tests
