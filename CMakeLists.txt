@@ -47,7 +47,7 @@ set(libcld2_full_files ${CLD2_DIR_INT}/cldutil.cc ${CLD2_DIR_INT}/cldutil_shared
 file(GLOB libcld2_full_glob ${libcld2_full_files})
 
 add_executable(langsplit src/langsplit/langsplit.cpp)
-target_link_libraries(langsplit ${libcld2_full_glob})
+target_link_libraries(langsplit ${Boost_LIBRARIES} ${libcld2_full_glob})
 
 
 # build tests
