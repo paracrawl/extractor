@@ -28,6 +28,9 @@ if (GTest_FOUND)
     include_directories(${GTEST_INCLUDE_DIRS})
 endif ()
 
+# update submodules
+execute_process(COMMAND git submodule update --init -- cld2
+                WORKING_DIRECTORY src/3rd_party)
 
 add_executable(mono src/mono/mono.cpp)
 target_link_libraries(mono ${Boost_LIBRARIES})

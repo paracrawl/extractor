@@ -1,0 +1,3 @@
+[submodule "src/3rd_party/cld2"]
+	path = src/3rd_party/cld2
+	url = https://github.com/CLD2Owners/cld2.git
