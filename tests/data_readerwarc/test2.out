@@ -1,0 +1,6 @@
+df6fa1abb58549287111ba8d776733e9 uri:http://statmt.org/
+This website is dedicated to research in statistical machine translation, i.e. the translation of text from one human language to another by a computer that learned how to translate from vast amounts of translated text.
+df6fa1abb58549287111ba8d776733e9 uri:http://www.fjoch.com/GIZA++.html
+GIZA++ is an extension of the program GIZA (part of the SMT toolkit EGYPT) which was developed by the Statistical Machine Translation team during the summer workshop in 1999 at the Center for Language and Speech Processing at Johns-Hopkins University (CLSP/JHU).
+GIZA++ includes a lot of additional features.
+The extensions of GIZA++ were designed and written by Franz Josef Och.

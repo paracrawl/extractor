@@ -9,8 +9,8 @@
 void compare(std::string input_file, std::string expected_result_file) {
   ReadWARC reader;
 
-  std::ifstream test1_input(std::string("../../tests/data/") + input_file);
-  std::ifstream test1_expected_output(std::string("../../tests/data/") + expected_result_file);
+  std::ifstream test1_input(std::string("../../tests/data_readerwarc/") + input_file);
+  std::ifstream test1_expected_output(std::string("../../tests/data_readerwarc/") + expected_result_file);
 
   if (!test1_input.is_open()) {
     std::cerr << "Input file not found!" << std::endl;

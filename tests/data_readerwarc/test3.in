@@ -1,0 +1,40 @@
+WARC/1.0
+WARC-Type: conversion
+WARC-Target-URI:
+WARC-Date: 2017-07-20T12:39:49Z
+WARC-Record-ID: <urn:uuid:4e2c9e9d-16ad-487d-a7a3-a7844df236c2>
+WARC-Refers-To: <urn:uuid:acf277dd-0b09-44bb-b7dd-1429e7b6cdca>
+WARC-Block-Digest: sha1:UZJYKZZJH3QI3RMVNKBAHMU3VKEFZGS2
+Content-Type: text/plain
+Content-Length: 6598
+
+This website is dedicated to research in statistical machine translation, i.e. the translation of text from one human language to another by a computer that learned how to translate from vast amounts of translated text.
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Target-URI: uri uri
+WARC-Date: 2017-07-20T12:39:49Z
+WARC-Block-Digest: sha1:UZJYKZZJH3QI3RMVNKBAHMU3VKEFZGS2
+Content-Type: text/plain
+Content-Length: 6598
+
+GIZA++ is an extension of the program GIZA (part of the SMT toolkit EGYPT) which was developed by the Statistical Machine Translation team during the summer workshop in 1999 at the Center for Language and Speech Processing at Johns-Hopkins University (CLSP/JHU).
+GIZA++ includes a lot of additional features.
+The extensions of GIZA++ were designed and written by Franz Josef Och.
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2017-07-20T12:39:49Z
+WARC-Block-Digest: sha1:UZJYKZZJH3QI3RMVNKBAHMU3VKEFZGS2
+Content-Type: text/plain
+Content-Length: 6598
+
+The first shared task which will examine translation between the following language pairs:
+
+    English-German and German-English
+    English-French and French-English
+    English-Hindi and Hindi-English NEW
+    English-Czech and Czech-English
+    English-Russian and Russian-English
+
+Participants may submit translations for any or all of the language directions. In addition to the common test sets the workshop organizers will provide optional training resources, including a newly expanded release of the Europarl corpora and out-of-domain corpora.

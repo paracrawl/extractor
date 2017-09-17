@@ -1,0 +1,33 @@
+WARC/1.0
+WARC-Type: conversion
+WARC-Target-URI: http://statmt.org/europarl/
+WARC-Date: 2017-07-20T12:39:49Z
+WARC-Record-ID: <urn:uuid:4e2c9e9d-16ad-487d-a7a3-a7844df236c2>
+WARC-Refers-To: <urn:uuid:acf277dd-0b09-44bb-b7dd-1429e7b6cdca>
+WARC-Block-Digest: sha1:UZJYKZZJH3QI3RMVNKBAHMU3VKEFZGS2
+Content-Type: text/plain
+
+For a detailed description of this corpus, please read:
+
+    Europarl: A Parallel Corpus for Statistical Machine Translation, Philipp Koehn, MT Summit 2005, pdf.
+
+    Please cite the paper, if you use this corpus in your work. See also the extended (but earlier) version of the report (ps, pdf).
+
+The Europarl parallel corpus is extracted from the proceedings of the European Parliament.
+It includes versions in 21 European languages: Romanic (French, Italian, Spanish, Portuguese, Romanian), Germanic (English, Dutch, German, Danish, Swedish), Slavik (Bulgarian, Czech, Polish, Slovak, Slovene), Finni-Ugric (Finnish, Hungarian, Estonian), Baltic (Latvian, Lithuanian), and Greek.
+http://statmt.org/europarl/
+
+The goal of the extraction and processing was to generate sentence aligned text for statistical machine translation systems. For this purpose we extracted matching items and labeled them with corresponding document IDs. Using a preprocessor we identified sentence boundaries.
+We sentence aligned the data using a tool based on the Church and Gale algorithm.
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Target-URI: http://statmt.org/
+WARC-Date: 2017-07-20T12:39:49Z
+WARC-Record-ID: <urn:uuid:4e2c9e9d-16ad-487d-a7a3-a7844df236c2>
+WARC-Refers-To: <urn:uuid:acf277dd-0b09-44bb-b7dd-1429e7b6cdca>
+WARC-Block-Digest: sha1:UZJYKZZJH3QI3RMVNKBAHMU3VKEFZGS2
+Content-Type: text/plain
+Content-Length: 6598
+
+This website is dedicated to research in statistical machine translation, i.e. the translation of text from one human language to another by a computer that learned how to translate from vast amounts of translated text.

@@ -10,15 +10,12 @@ if (GTest_FOUND)
     include_directories(${GTEST_INCLUDE_DIRS})
 endif ()
 
+# test_readerwarc
+add_executable(test_readerwarc test_readerwarc.cpp)
+target_link_libraries(test_readerwarc ${GTEST_BOTH_LIBRARIES} ${Boost_LIBRARIES})
+install(TARGETS test_readerwarc DESTINATION tests)
 
-foreach (source ${srcs})
-    get_filename_component(tname ${source} NAME_WE)
-    message("TEST name: " "${tname}")
-
-    # target
-    add_executable(${tname} ${source})
-    target_link_libraries(${tname} ${GTEST_BOTH_LIBRARIES} ${Boost_LIBRARIES})
-
-    # Install
-    install(TARGETS ${tname} DESTINATION tests)
-endforeach (source)
+# test_langsplit
+add_executable(test_langsplit test_langsplit.cpp)
+target_link_libraries(test_langsplit ${GTEST_BOTH_LIBRARIES} ${Boost_LIBRARIES} ${libcld2_full_glob})
+install(TARGETS test_langsplit DESTINATION tests)
