@@ -10,6 +10,7 @@
 #include <sstream>
 #include <set>
 
+#include "boost/algorithm/string/trim.hpp"
 #include "../3rd_party/cld2/public/compact_lang_det.h"
 #include "header.h"
 
@@ -17,83 +18,84 @@ using CLD2::int32;
 
 typedef int32 Encoding;
 static const Encoding UNKNOWN_ENCODING = 0;
-static const char *magic_number = "df6fa1abb58549287111ba8d776733e9";
 
 class Langsplit {
 public:
 
     template<typename T>
-    std::stringstream process(T &input_stream) {
-      std::vector<std::string> argv = {"--printchunks"};
+    std::stringstream process(T &input_stream, std::vector<std::string> modes) {
 
-      int flags = 0;
+      int flags = get_flag(modes);
       bool print_stats = false;
-      bool print_chunks = false;
-      for (int i = 0; i < argv.size(); ++i) {
-        if (argv.at(i) == "--scoreasquads") {
-          flags |= CLD2::kCLDFlagScoreAsQuads;
-        }
-        if (argv.at(i) == "--html") {
-          flags |= CLD2::kCLDFlagHtml;
-        }
-        if (argv.at(i) == "--cr") {
-          flags |= CLD2::kCLDFlagCr;
-        }
-        if (argv.at(i) == "--verbose") {
-          flags |= CLD2::kCLDFlagVerbose;
-        }
-        if (argv.at(i) == "--echo") {
-          flags |= CLD2::kCLDFlagEcho;
-        }
-        if (argv.at(i) == "--besteffort") {
-          flags |= CLD2::kCLDFlagBestEffort;
-        }
-        if (argv.at(i) == "--printstats") {
+
+      for (int i = 0; i < modes.size(); ++i) {
+        if (modes.at(i) == "--printstats") {
           print_stats = true;
-        }
-        if (argv.at(i) == "--printchunks") {
-          print_chunks = true;
         }
       }
 
       std::stringstream ssout;
       std::ostringstream buffer;
-      string line;
-      string header;
+      std::string line;
+      std::string header;
       while (getline(input_stream, line)) {
-        line = trim(line);
+        line = boost::trim_copy(line);
         if (line.empty()) {
           continue;
         }
+
         if (line.find(magic_number) == 0) {
-          if (print_stats || print_chunks) {
-            ssout << PrintLanguageStats(flags, header, buffer.str(), print_chunks);
-          }
+          ssout << PrintLanguageStats(flags, header, buffer.str(), print_stats);
+
           buffer.clear();
-          buffer.str(string(""));
+          buffer.str(std::string(""));
           header = line;
         } else {
-          buffer << line << std::endl;
+          buffer << line << "\n";
         }
       }
 
-      if (print_stats || print_chunks) {
-        ssout << PrintLanguageStats(flags, header, buffer.str(), print_chunks);
-      }
+      ssout << PrintLanguageStats(flags, header, buffer.str(), print_stats);
 
       return ssout;
     }
 
-    std::string PrintLanguageStats(const int flags, const string &header,
-                                   const string &buffer, const bool print_chunks) {
+
+private:
+
+    const std::string magic_number = "df6fa1abb58549287111ba8d776733e9";
+
+    int get_flag(std::vector<std::string> modes) {
+      int flags = 0;
+      for (int i = 0; i < modes.size(); ++i) {
+        if (modes.at(i) == "--scoreasquads") {
+          flags |= CLD2::kCLDFlagScoreAsQuads;
+        } else if (modes.at(i) == "--html") {
+          flags |= CLD2::kCLDFlagHtml;
+        } else if (modes.at(i) == "--cr") {
+          flags |= CLD2::kCLDFlagCr;
+        } else if (modes.at(i) == "--verbose") {
+          flags |= CLD2::kCLDFlagVerbose;
+        } else if (modes.at(i) == "--echo") {
+          flags |= CLD2::kCLDFlagEcho;
+        } else if (modes.at(i) == "--besteffort") {
+          flags |= CLD2::kCLDFlagBestEffort;
+        }
+      }
+
+      return flags;
+    }
+
+    std::string PrintLanguageStats(const int flags, const std::string &header,
+                                   const std::string &buffer, const bool print_stats) {
       std::stringstream ss;
       if (header.empty() || buffer.empty()) {
         return "";
       }
 
       const Header header_values(header);
-      const string uri = header_values.get_uri();
-      const string tld = header_values.get_tld();
+      const std::string uri = header_values.get_uri();
+      const std::string tld = header_values.get_tld();
 
       bool is_plain_text = true;
       CLD2::CLDHints cld_hints = {NULL, NULL, UNKNOWN_ENCODING,
@@ -101,6 +103,7 @@ public:
       if (!tld.empty()) {
         cld_hints.tld_hint = tld.c_str();
       }
+
       CLD2::Language language3[3];
       int percent3[3];
       double normalized_score3[3];
@@ -116,46 +119,54 @@ public:
               &is_reliable, &valid_prefix_bytes);
 
       if (is_reliable) {
-        if (print_chunks) {
+        if (print_stats) {
+          ss << output_stats(buffer, header, percent3, language3, normalized_score3);
+        } else {
           for (int i = 0; i < static_cast<int>(resultchunkvector.size()); ++i) {
             const CLD2::ResultChunk &rc = resultchunkvector[i];
             CLD2::Language rc_lang = static_cast<CLD2::Language>(rc.lang1);
+
             if (rc_lang == CLD2::UNKNOWN_LANGUAGE) {
               continue;
             }
-            const char *lang_code = LanguageCode(rc_lang);
-            const string chunk = string(buffer, rc.offset, rc.bytes);
 
-            ss << header << " language:" << lang_code
-               << " offset:" << rc.offset << " bytes:" << rc.bytes
-               << std::endl;
-            ss << chunk << std::endl;
-          }
-        } else {
-          // only print some statistics
-          ss << header << " bytes:" << buffer.size() << std::endl;
-          for (int i = 0; i < 3; i++) {
-            if (percent3[i] > 0) {
-              const char *lang_name = LanguageName(language3[i]);
-              ss << lang_name << "\t" << percent3[i] << "\t"
-                 << normalized_score3[i] << std::endl;
-            }
+            const std::string lang_code = LanguageCode(rc_lang);
+            ss << output_chunk(buffer, rc, header, lang_code);
           }
         }
       } else {
-        std::cerr << "prediction unrealiable" << std::endl;
+        std::cerr << "prediction unrealiable" << "\n";
       }
 
       return ss.str();
     }
 
-private:
-    static string trim(const string &s) {
-      auto wsfront = std::find_if_not(s.begin(), s.end(),
-                                      [](int c) { return std::isspace(c); });
-      auto wsback = std::find_if_not(s.rbegin(), s.rend(),
-                                     [](int c) { return std::isspace(c); }).base();
-      return (wsback <= wsfront ? std::string() : std::string(wsfront, wsback));
+    std::string output_chunk(const std::string buffer, const CLD2::ResultChunk &rc, const std::string header,
+                             const std::string lang_code) {
+      std::stringstream ss;
+      const std::string chunk = std::string(buffer, rc.offset, rc.bytes);
+
+      ss << header << " language:" << lang_code
+         << " offset:" << rc.offset << " bytes:" << rc.bytes
+         << "\n" << chunk << "\n";
+
+      return ss.str();
+    }
+
+    std::string
+    output_stats(const std::string buffer, const std::string header, int percent3[], CLD2::Language language3[],
+                 double normalized_score3[]) {
+      std::stringstream ss;
+
+      ss << header << " bytes:" << buffer.size() << "\n";
+      for (int i = 0; i < 3; i++) {
+        if (percent3[i] > 0) {
+          ss << LanguageName(language3[i]) << "\t" << percent3[i] << "\t"
+             << normalized_score3[i] << "\n";
+        }
+      }
+
+      return ss.str();
     }
 };
 

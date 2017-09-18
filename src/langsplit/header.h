@@ -9,11 +9,9 @@
 
 namespace {
 
-    using std::string;
-
     class Header {
     public:
-        explicit Header(const string &header) {
+        explicit Header(const std::string &header) {
           for (const auto &value : StringUtil::Split(header, ' ')) {
             if (value.find("tld:") == 0) {
               tld_ = value.substr(4);
@@ -25,16 +23,16 @@ namespace {
           }
         }
 
-        const string get_tld() const { return tld_; }
+        const std::string get_tld() const { return tld_; }
 
-        const string get_uri() const { return uri_; }
+        const std::string get_uri() const { return uri_; }
 
-        const string get_encoding() const { return encoding_; }
+        const std::string get_encoding() const { return encoding_; }
 
     private:
-        string uri_;
-        string tld_;
-        string encoding_;
+        std::string uri_;
+        std::string tld_;
+        std::string encoding_;
     };
 
 }  // namespace

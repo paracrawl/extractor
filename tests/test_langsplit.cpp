@@ -22,7 +22,8 @@ void compare(std::string input_file, std::string expected_result_file) {
     FAIL();
   }
 
-  std::stringstream ss = langsplit.process<std::ifstream>(test1_input);
+  std::vector<std::string> modes = {};
+  std::stringstream ss = langsplit.process<std::ifstream>(test1_input, modes);
 
   std::stringstream ss2;
   ss2 << test1_expected_output.rdbuf();
