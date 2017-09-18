@@ -2,21 +2,18 @@
 #ifndef EXTRACTOR_LANGSPLIT_H
 #define EXTRACTOR_LANGSPLIT_H
 
-#include <cstdio>
-#include <cstring>
-#include <fstream>
+#include "header.h"
+#include "../3rd_party/cld2/public/compact_lang_det.h"
+#include "boost/algorithm/string/trim.hpp"
+
 #include <iostream>
-#include <vector>
 #include <sstream>
+#include <string>
+#include <vector>
 #include <set>
 
-#include "boost/algorithm/string/trim.hpp"
-#include "../3rd_party/cld2/public/compact_lang_det.h"
-#include "header.h"
 
-using CLD2::int32;
-
-typedef int32 Encoding;
+typedef CLD2::int32 Encoding;
 static const Encoding UNKNOWN_ENCODING = 0;
 
 class Langsplit {

@@ -1,12 +1,11 @@
 
 #include "readwarc.h"
-
-#include <iostream>
-#include <fstream>
 #include "boost/filesystem/fstream.hpp"
 #include "boost/filesystem/operations.hpp"
 #include "boost/iostreams/filtering_stream.hpp"
 #include "boost/iostreams/filter/gzip.hpp"
+
+#include <iostream>
 
 
 int main(int argc, char *argv[]) {

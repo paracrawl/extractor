@@ -1,16 +1,16 @@
 
-#include <iostream>
-#include <fstream>
-#include <thread>
-
+#include "mono.h"
+#include "readwarc.h"
+#include "pcqueue.h"
+#include "../langsplit/langsplit.h"
 #include "boost/filesystem/fstream.hpp"
 #include "boost/filesystem/operations.hpp"
 #include "boost/iostreams/filtering_stream.hpp"
 #include "boost/iostreams/filter/gzip.hpp"
 
-#include "pcqueue.h"
-#include "readwarc.h"
-#include "../langsplit/langsplit.h"
+#include <thread>
+#include <string>
+#include <vector>
 
 
 void thread_producer(util::PCQueue<int> *pcq) {
@@ -42,8 +42,7 @@ void producer(std::string path) {
   std::stringstream reader_ss = reader.parse<boost::iostreams::filtering_istream>(in);
 
   Langsplit langsplit;
-  std::vector<std::string> modes = {};
-  std::stringstream langsplit_ss = langsplit.process<std::stringstream>(reader_ss, modes);
+  std::stringstream langsplit_ss = langsplit.process<std::stringstream>(reader_ss, std::vector<std::string>());
 
   std::cout << langsplit_ss.str();
 }

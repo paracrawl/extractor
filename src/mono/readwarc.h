@@ -6,6 +6,9 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
 
+#include <string>
+#include <sstream>
+
 
 class ReadWARC {
 public:

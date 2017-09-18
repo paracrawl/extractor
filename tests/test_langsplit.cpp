@@ -1,9 +1,11 @@
 
 #include "gtest/gtest.h"
-
-#include <fstream>
-
 #include "../src/langsplit/langsplit.h"
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 
 void compare(std::string input_file, std::string expected_result_file) {
@@ -22,8 +24,7 @@ void compare(std::string input_file, std::string expected_result_file) {
     FAIL();
   }
 
-  std::vector<std::string> modes = {};
-  std::stringstream ss = langsplit.process<std::ifstream>(test1_input, modes);
+  std::stringstream ss = langsplit.process<std::ifstream>(test1_input, std::vector<std::string>());
 
   std::stringstream ss2;
   ss2 << test1_expected_output.rdbuf();

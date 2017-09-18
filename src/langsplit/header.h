@@ -2,10 +2,10 @@
 #ifndef EXTRACTOR_HEADER_H
 #define EXTRACTOR_HEADER_H
 
+#include "string_util.h"
 
 #include <string>
 
-#include "string_util.h"
 
 namespace {
 

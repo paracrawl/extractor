@@ -1,9 +1,11 @@
 
 #include "gtest/gtest.h"
-
-#include <fstream>
-
 #include "../src/mono/readwarc.h"
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 
 void compare(std::string input_file, std::string expected_result_file) {

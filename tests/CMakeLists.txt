@@ -1,8 +1,6 @@
 
 file(GLOB srcs ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-include_directories(../)
-
 # gtest
 enable_testing()
 find_package(GTest REQUIRED)

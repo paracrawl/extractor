@@ -1,10 +1,13 @@
 
 #include "langsplit.h"
-
-#include <iostream>
 #include "boost/filesystem/fstream.hpp"
 #include "boost/filesystem/operations.hpp"
 #include "boost/iostreams/filtering_stream.hpp"
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 
 int main(int argc, char **argv) {
@@ -25,8 +28,7 @@ int main(int argc, char **argv) {
 
 
   Langsplit langsplit;
-  std::vector<std::string> modes = {};
-  std::stringstream ss = langsplit.process<boost::iostreams::filtering_istream>(in, modes);
+  std::stringstream ss = langsplit.process<boost::iostreams::filtering_istream>(in, std::vector<std::string>());
   std::cout << ss.str();
 
   return 0;

@@ -2,10 +2,13 @@
 #ifndef EXTRACTOR_STRING_UTIL_H
 #define EXTRACTOR_STRING_UTIL_H
 
+#include "boost/algorithm/string/trim.hpp"
 
+#include <sstream>
 #include <algorithm>
 #include <string>
 #include <vector>
+
 
 namespace {
 
