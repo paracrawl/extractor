@@ -25,7 +25,8 @@ int main(int argc, char **argv) {
 
 
   Langsplit langsplit;
-  std::stringstream ss = langsplit.process<boost::iostreams::filtering_istream>(in);
+  std::vector<std::string> modes = {};
+  std::stringstream ss = langsplit.process<boost::iostreams::filtering_istream>(in, modes);
   std::cout << ss.str();
 
   return 0;

@@ -1,7 +1,17 @@
 
 #include <iostream>
+#include <fstream>
 #include <thread>
+
+#include "boost/filesystem/fstream.hpp"
+#include "boost/filesystem/operations.hpp"
+#include "boost/iostreams/filtering_stream.hpp"
+#include "boost/iostreams/filter/gzip.hpp"
+
 #include "pcqueue.h"
+#include "readwarc.h"
+#include "../langsplit/langsplit.h"
+
 
 void thread_producer(util::PCQueue<int> *pcq) {
   int r = rand();
@@ -17,15 +27,33 @@ void thread_consumer(util::PCQueue<int> *pcq) {
   std::cout << "Consumed: " << c << std::endl;
 }
 
+void producer(std::string path) {
+  std::ifstream file(path, std::ios_base::in | std::ios_base::binary);
+  if (!boost::filesystem::exists(path)) {
+    std::cerr << "File not found!" << std::endl;
+    return;
+  }
+
+  boost::iostreams::filtering_istream in;
+  in.push(boost::iostreams::gzip_decompressor());
+  in.push(file);
+
+  ReadWARC reader;
+  std::stringstream reader_ss = reader.parse<boost::iostreams::filtering_istream>(in);
+
+  Langsplit langsplit;
+  std::vector<std::string> modes = {};
+  std::stringstream langsplit_ss = langsplit.process<std::stringstream>(reader_ss, modes);
+
+  std::cout << langsplit_ss.str();
+}
+
 int main() {
-  srand(time(NULL));
   util::PCQueue<int> pcq(3);
 
-  std::thread t1(thread_producer, &pcq);
-  std::thread t2(thread_consumer, &pcq);
-
-  t1.join();
-  t2.join();
+  for (std::string path; std::getline(std::cin, path);) {
+    producer(path);
+  }
 
   return 0;
 }

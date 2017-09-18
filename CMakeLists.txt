@@ -12,7 +12,6 @@ message("BUILD_TEST: " ${BUILD_TEST})
 message("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -O3 -Ofast")
 set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -g")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS_RELEASE})
 
 
 # Boost
@@ -32,9 +31,8 @@ endif ()
 execute_process(COMMAND git submodule update --init -- cld2
         WORKING_DIRECTORY src/3rd_party)
 
-add_executable(mono src/mono/mono.cpp)
-target_link_libraries(mono ${Boost_LIBRARIES})
 
+# readwarc
 add_executable(readwarc src/mono/readwarc.cpp)
 target_link_libraries(readwarc ${Boost_LIBRARIES})
 
@@ -48,6 +46,10 @@ file(GLOB libcld2_full_glob ${libcld2_full_files})
 
 add_executable(langsplit src/langsplit/langsplit.cpp)
 target_link_libraries(langsplit ${Boost_LIBRARIES} ${libcld2_full_glob})
+
+# mono
+add_executable(mono src/mono/mono.cpp)
+target_link_libraries(mono ${Boost_LIBRARIES} ${libcld2_full_glob})
 
 
 # build tests
