@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   in.push(boost::iostreams::gzip_decompressor());
   in.push(file);
 
-  ReadWARC reader;
+  mono::ReadWARC reader;
   std::stringstream ss = reader.parse<boost::iostreams::filtering_istream>(in);
   std::cout << ss.str();
 

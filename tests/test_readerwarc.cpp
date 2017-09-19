@@ -9,7 +9,7 @@
 
 
 void compare(std::string input_file, std::string expected_result_file) {
-  ReadWARC reader;
+  mono::ReadWARC reader;
 
   std::ifstream test1_input(std::string("../../tests/data_readerwarc/") + input_file);
   std::ifstream test1_expected_output(std::string("../../tests/data_readerwarc/") + expected_result_file);
