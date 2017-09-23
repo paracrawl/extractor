@@ -1,6 +1,5 @@
 
 #include "langsplitfilter.h"
-#include "header.h"
 #include "../3rd_party/cld2/public/compact_lang_det.h"
 #include "boost/algorithm/string/trim.hpp"
 

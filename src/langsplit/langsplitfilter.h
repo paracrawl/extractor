@@ -2,6 +2,7 @@
 #ifndef EXTRACTOR_LANGSPLITFILTER_H
 #define EXTRACTOR_LANGSPLITFILTER_H
 
+#include "header.h"
 #include "../3rd_party/cld2/public/compact_lang_det.h"
 #include <boost/iostreams/filter/line.hpp>
 #include <iostream>
