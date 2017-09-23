@@ -6,7 +6,9 @@
 
 namespace mono {
 
-    std::stringstream producer(std::string path);
+    std::stringstream producer_file(std::string path);
+
+    std::stringstream producer_curl(std::string path);
 
 };
 

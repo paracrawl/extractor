@@ -1,16 +1,19 @@
 
 #include "gtest/gtest.h"
-#include "../src/mono/readwarc.h"
+#include "../src/mono/warcfilter.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 
+#include <boost/iostreams/filter/aggregate.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/copy.hpp>
+
 
 void compare(std::string input_file, std::string expected_result_file) {
-  mono::ReadWARC reader;
-
+  // load files
   std::ifstream test1_input(std::string("../../tests/data_readerwarc/") + input_file);
   std::ifstream test1_expected_output(std::string("../../tests/data_readerwarc/") + expected_result_file);
 
@@ -24,11 +27,18 @@ void compare(std::string input_file, std::string expected_result_file) {
     FAIL();
   }
 
-  std::stringstream ss = reader.parse<std::ifstream>(test1_input);
+  // apply filter
+  std::stringstream output;
+  boost::iostreams::filtering_streambuf<boost::iostreams::input> in(test1_input);
+  boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
+  out.push(mono::WARCFilter());
+  out.push(output);
+  boost::iostreams::copy(in, out);
 
+  // compare outputs
   std::stringstream ss2;
   ss2 << test1_expected_output.rdbuf();
-  ASSERT_EQ(ss.str(), ss2.str());
+  ASSERT_EQ(output.str(), ss2.str());
 
   test1_input.close();
   test1_expected_output.close();

@@ -25,7 +25,7 @@ void compare_lengths(std::string input_file, std::string expected_result_file) {
     FAIL();
   }
 
-  std::stringstream ss = mono::producer(test1_input_path);
+  std::stringstream ss = mono::producer_file(test1_input_path);
 
   std::stringstream ss2;
   ss2 << test1_expected_output.rdbuf();

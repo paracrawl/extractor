@@ -30,7 +30,10 @@ endif ()
 
 # update submodules
 execute_process(COMMAND git submodule update --init -- cld2
-        WORKING_DIRECTORY src/3rd_party)
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/3rd_party/)
+
+execute_process(COMMAND git submodule update --init -- curl-asio
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/3rd_party/)
 
 
 # cld2
@@ -43,13 +46,19 @@ file(GLOB libcld2_full_glob ${libcld2_full_files})
 add_library(cld2_lib SHARED ${libcld2_full_glob})
 target_compile_options(cld2_lib PRIVATE -Wno-c++11-narrowing -w)
 
+# CURL
+find_package(CURL REQUIRED)
+if (CURL_FOUND)
+    include_directories(${CURL_INCLUDE_DIRS})
+endif()
+
 # langsplit
 add_executable(langsplit src/langsplit/langsplit.cpp)
 target_link_libraries(langsplit ${Boost_LIBRARIES} cld2_lib)
 
 # mono
-add_executable(mono src/mono/mono.cpp src/mono/producer.cpp)
-target_link_libraries(mono ${Boost_LIBRARIES} cld2_lib)
+add_executable(mono src/mono/mono.cpp src/mono/producer.cpp src/mono/warcfilter.cpp src/langsplit/langsplitfilter.cpp src/utils/curldownloader.cpp)
+target_link_libraries(mono ${Boost_LIBRARIES} ${CURL_LIBRARIES} cld2_lib)
 
 
 # build tests

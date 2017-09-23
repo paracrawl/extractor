@@ -28,11 +28,14 @@ namespace mono {
 int main(int argc, char *argv[]) {
   util::PCQueue<int> pcq(3);
 
-  for (std::string path; std::getline(std::cin, path);) {
-    std::stringstream ss = mono::producer(path);
-    std::cout << ss.str();
-  }
-  
+//  for (std::string path; std::getline(std::cin, path);) {
+//    std::stringstream ss = mono::producer(path);
+//  }
+
+//  std::stringstream ss = mono::producer_file(argv[1]);
+  std::stringstream ss = mono::producer_curl(argv[1]);
+  std::cout << ss.str().length();
+
 
   return 0;
 }

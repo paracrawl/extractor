@@ -1,16 +1,19 @@
 
 #include "gtest/gtest.h"
-#include "../src/langsplit/langsplit.h"
+#include "../src/langsplit/langsplitfilter.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 
+#include <boost/iostreams/filter/aggregate.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/copy.hpp>
+
 
 void compare(std::string input_file, std::string expected_result_file) {
-  Langsplit langsplit;
-
+  // load files
   std::ifstream test1_input(std::string("../../tests/data_langsplit/") + input_file);
   std::ifstream test1_expected_output(std::string("../../tests/data_langsplit/") + expected_result_file);
 
@@ -24,17 +27,26 @@ void compare(std::string input_file, std::string expected_result_file) {
     FAIL();
   }
 
-  std::stringstream ss = langsplit.process<std::ifstream>(test1_input, std::vector<std::string>());
+  // apply filter
+  std::stringstream output;
+  mono::LangsplitFilter langsplitFilter = mono::LangsplitFilter();
+  boost::iostreams::filtering_streambuf<boost::iostreams::input> in(test1_input);
+  boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
+  out.push(langsplitFilter);
+  out.push(output);
 
+  boost::iostreams::copy(in, out);
+
+  // compare outputs
   std::stringstream ss2;
   ss2 << test1_expected_output.rdbuf();
-  ASSERT_EQ(ss.str(), ss2.str());
+  ASSERT_EQ(output.str(), ss2.str());
 
   test1_input.close();
   test1_expected_output.close();
 }
 
 
-TEST(readerwarc, test_simple) {
+TEST(langsplit, test_simple) {
   compare("test1.in", "test1.out");
 }

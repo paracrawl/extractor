@@ -1,36 +1,53 @@
 
-#include "readwarc.h"
 #include "producer.h"
-#include "../langsplit/langsplit.h"
-#include "boost/filesystem/fstream.hpp"
-#include "boost/filesystem/operations.hpp"
-#include "boost/iostreams/filtering_stream.hpp"
-#include "boost/iostreams/filter/gzip.hpp"
+#include "warcfilter.h"
+#include "../langsplit/langsplitfilter.h"
+#include "../utils/curldownloader.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/filter/aggregate.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/copy.hpp>
 
 
 namespace mono {
 
-    std::stringstream producer(std::string path) {
-      std::ifstream file(path, std::ios_base::in | std::ios_base::binary);
+    std::stringstream producer_file(std::string path) {
+      std::ifstream input_file(path, std::ios_base::in | std::ios_base::binary);
       if (!boost::filesystem::exists(path)) {
         std::cerr << "File not found!" << std::endl;
         return std::stringstream();
       }
 
-      boost::iostreams::filtering_istream in;
-      in.push(boost::iostreams::gzip_decompressor());
-      in.push(file);
+      std::stringstream output;
+      boost::iostreams::filtering_streambuf<boost::iostreams::input> qin(input_file);
+      boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
+      qout.push(boost::iostreams::gzip_decompressor());
+      qout.push(WARCFilter());
+      qout.push(LangsplitFilter());
+      qout.push(output);
 
-      ReadWARC reader;
-      std::stringstream reader_ss = reader.parse<boost::iostreams::filtering_istream>(in);
+      boost::iostreams::copy(qin, qout);
 
-      Langsplit langsplit;
-      std::stringstream langsplit_ss = langsplit.process<std::stringstream>(reader_ss, std::vector<std::string>());
-
-      return langsplit_ss;
+      return output;
     }
+
+    std::stringstream producer_curl(std::string url) {
+      std::stringstream output;
+      boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
+      qout.push(boost::iostreams::gzip_decompressor());
+      qout.push(WARCFilter());
+      qout.push(LangsplitFilter());
+      qout.push(output);
+
+      std::ostream oqout(&qout);
+      HTTPDownloader downloader;
+      downloader.download(url, &oqout);
+
+      return output;
+    }
+
 }
