@@ -20,19 +20,9 @@ if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 endif ()
 
-# gtest
-enable_testing()
-find_package(GTest REQUIRED)
-if (GTest_FOUND)
-    include_directories(${GTEST_INCLUDE_DIRS})
-endif ()
-
 
 # update submodules
 execute_process(COMMAND git submodule update --init -- cld2
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/3rd_party/)
-
-execute_process(COMMAND git submodule update --init -- curl-asio
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/3rd_party/)
 
 
@@ -52,16 +42,19 @@ if (CURL_FOUND)
     include_directories(${CURL_INCLUDE_DIRS})
 endif()
 
-# langsplit
-add_executable(langsplit src/langsplit/langsplit.cpp)
-target_link_libraries(langsplit ${Boost_LIBRARIES} cld2_lib)
 
 # mono
 add_executable(mono src/mono/mono.cpp src/mono/producer.cpp src/mono/warcfilter.cpp src/langsplit/langsplitfilter.cpp src/utils/curldownloader.cpp)
 target_link_libraries(mono ${Boost_LIBRARIES} ${CURL_LIBRARIES} cld2_lib)
 
 
-# build tests
+# build tests with gtest
 if (BUILD_TEST)
+
+    find_package(GTest REQUIRED)
+    if (GTest_FOUND)
+        include_directories(${GTEST_INCLUDE_DIRS})
+    endif ()
+
     add_subdirectory(tests)
 endif (BUILD_TEST)

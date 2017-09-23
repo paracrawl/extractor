@@ -1,6 +1,6 @@
 
-#ifndef EXTRACTOR_HEADER_H
-#define EXTRACTOR_HEADER_H
+#ifndef EXTRACTOR_CURLDOWNLOADER_H
+#define EXTRACTOR_CURLDOWNLOADER_H
 
 #include <iostream>
 #include <string>
@@ -24,4 +24,4 @@ private:
 };
 
 
-#endif //EXTRACTOR_HEADER_H
+#endif //EXTRACTOR_CURLDOWNLOADER_H
