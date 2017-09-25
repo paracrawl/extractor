@@ -3,6 +3,7 @@
 #include "warcfilter.h"
 #include "../langsplit/langsplitfilter.h"
 #include "../utils/curldownloader.h"
+#include "../utils/common.h"
 
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -15,7 +16,7 @@
 
 namespace mono {
 
-    std::stringstream producer_file(std::string path) {
+    std::stringstream producer_file(std::string path, utils::compression_option compr) {
       std::ifstream input_file(path, std::ios_base::in | std::ios_base::binary);
       if (!boost::filesystem::exists(path)) {
         std::cerr << "File not found!" << std::endl;
@@ -25,7 +26,11 @@ namespace mono {
       std::stringstream output;
       boost::iostreams::filtering_streambuf<boost::iostreams::input> qin(input_file);
       boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
-      qout.push(boost::iostreams::gzip_decompressor());
+
+      if (compr == utils::gzip) {
+        qout.push(boost::iostreams::gzip_decompressor());
+      }
+
       qout.push(WARCFilter());
       qout.push(LangsplitFilter());
       qout.push(output);
@@ -35,10 +40,14 @@ namespace mono {
       return output;
     }
 
-    std::stringstream producer_curl(std::string url) {
+    std::stringstream producer_curl(std::string url, utils::compression_option compr) {
       std::stringstream output;
       boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
-      qout.push(boost::iostreams::gzip_decompressor());
+
+      if (compr == utils::gzip) {
+        qout.push(boost::iostreams::gzip_decompressor());
+      }
+
       qout.push(WARCFilter());
       qout.push(LangsplitFilter());
       qout.push(output);

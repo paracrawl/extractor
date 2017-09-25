@@ -10,12 +10,12 @@ message("BUILD_TEST: " ${BUILD_TEST})
 
 # flags
 message("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -O3 -Ofast")
-set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -pthread -O3 -Ofast")
+set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -pthread -g ")
 
 
 # Boost
-find_package(Boost REQUIRED COMPONENTS filesystem system iostreams regex)
+find_package(Boost REQUIRED COMPONENTS log filesystem system iostreams regex program_options)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 endif ()
@@ -44,7 +44,7 @@ endif()
 
 
 # mono
-add_executable(mono src/mono/mono.cpp src/mono/producer.cpp src/mono/warcfilter.cpp src/langsplit/langsplitfilter.cpp src/utils/curldownloader.cpp)
+add_executable(mono src/mono/mono.cpp src/mono/producer.cpp src/mono/warcfilter.cpp src/langsplit/langsplitfilter.cpp src/utils/curldownloader.cpp src/utils/common.cpp)
 target_link_libraries(mono ${Boost_LIBRARIES} ${CURL_LIBRARIES} cld2_lib)
 
 
