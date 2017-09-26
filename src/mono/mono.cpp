@@ -1,6 +1,4 @@
 
-#define BOOST_LOG_DYN_LINK 1
-
 #include "pcqueue.h"
 #include "producer.h"
 #include "../utils/logging.h"
@@ -12,6 +10,9 @@
 #include <thread>
 #include <sstream>
 
+namespace po = boost::program_options;
+
+typedef utils::shared_vector<std::string> shared_vector_string;
 
 namespace mono {
 
@@ -28,10 +29,35 @@ namespace mono {
       int c = (*pcq).Consume();
       std::cout << "Consumed: " << c << std::endl;
     }
+
+    void load_data_from_cin(shared_vector_string &data) {
+      for (std::string path; std::getline(std::cin, path);) {
+        data.push(boost::trim_copy(path));
+      }
+      data.reverse();  // so that pop_back returns in the original order
+    }
+
+    int start(bool curl, utils::compression_option compr) {
+      shared_vector_string files_to_process;
+      load_data_from_cin(files_to_process);
+      LOG_INFO << files_to_process.size() << " files found to process.";
+
+      std::stringstream result;
+      while (files_to_process.size() > 0) {
+        std::string path = files_to_process.pop();
+        if (curl) {
+          producer_curl(result, path, compr);
+        } else {
+          producer_file(result, path, compr);
+        }
+      }
+      
+      std::cout << result.rdbuf();
+
+      return 0;
+    }
+
 }
-
-
-namespace po = boost::program_options;
 
 int main(int argc, char *argv[]) {
   logging::init();
@@ -83,15 +109,6 @@ int main(int argc, char *argv[]) {
     LOG_INFO << "Expecting uncompressed files. ";
   }
 
-  if (vm.count("curl")) {
-    LOG_INFO << "Using curl to download remote files. ";
-    std::stringstream ss = mono::producer_curl(argv[1], compr);
+  return mono::start(vm.count("curl"), compr);
 
-  } else {
-    LOG_INFO << "Local files will be processed. ";
-    std::stringstream ss = mono::producer_file(argv[1], compr);
-  }
-
-
-  return 0;
 }

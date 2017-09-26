@@ -8,9 +8,9 @@
 
 namespace mono {
 
-    std::stringstream producer_file(std::string path, utils::compression_option compr);
+    void producer_file(std::stringstream &ss, std::string path, utils::compression_option compr);
 
-    std::stringstream producer_curl(std::string path, utils::compression_option compr);
+    void producer_curl(std::stringstream &ss, std::string path, utils::compression_option compr);
 
 };
 

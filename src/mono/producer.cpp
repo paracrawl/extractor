@@ -4,6 +4,7 @@
 #include "../langsplit/langsplitfilter.h"
 #include "../utils/curldownloader.h"
 #include "../utils/common.h"
+#include "../utils/logging.h"
 
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -16,14 +17,15 @@
 
 namespace mono {
 
-    std::stringstream producer_file(std::string path, utils::compression_option compr) {
+    void producer_file(std::stringstream &output, std::string path, utils::compression_option compr) {
+      LOG_INFO << "Local files will be processed. ";
+
       std::ifstream input_file(path, std::ios_base::in | std::ios_base::binary);
       if (!boost::filesystem::exists(path)) {
         std::cerr << "File not found!" << std::endl;
-        return std::stringstream();
+        return;
       }
 
-      std::stringstream output;
       boost::iostreams::filtering_streambuf<boost::iostreams::input> qin(input_file);
       boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
 
@@ -37,11 +39,11 @@ namespace mono {
 
       boost::iostreams::copy(qin, qout);
 
-      return output;
     }
 
-    std::stringstream producer_curl(std::string url, utils::compression_option compr) {
-      std::stringstream output;
+    void producer_curl(std::stringstream &output, std::string url, utils::compression_option compr) {
+      LOG_INFO << "Using curl to download remote files. ";
+
       boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
 
       if (compr == utils::gzip) {
@@ -56,7 +58,6 @@ namespace mono {
       HTTPDownloader downloader;
       downloader.download(url, &oqout);
 
-      return output;
     }
 
 }
