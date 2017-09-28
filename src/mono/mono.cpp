@@ -10,6 +10,7 @@
 #include <thread>
 #include <sstream>
 
+
 namespace po = boost::program_options;
 
 typedef utils::shared_vector<std::string> shared_vector_string;
@@ -37,22 +38,19 @@ namespace mono {
       data.reverse();  // so that pop_back returns in the original order
     }
 
-    int start(bool curl, utils::compression_option compr) {
+    int start(bool curl, std::string output_folder, utils::compression_option input_compr, utils::compression_option output_compr) {
       shared_vector_string files_to_process;
       load_data_from_cin(files_to_process);
       LOG_INFO << files_to_process.size() << " files found to process.";
 
-      std::stringstream result;
       while (files_to_process.size() > 0) {
         std::string path = files_to_process.pop();
         if (curl) {
-          producer_curl(result, path, compr);
+          producer_curl(path, output_folder, input_compr, output_compr);
         } else {
-          producer_file(result, path, compr);
+          producer_file(path, output_folder, input_compr, output_compr);
         }
       }
-      
-      std::cout << result.rdbuf();
 
       return 0;
     }
@@ -66,9 +64,11 @@ int main(int argc, char *argv[]) {
   desc.add_options()
           ("help", "produce help message")
           ("curl", "set the number of producers")
-          ("compression", po::value<std::string>(), "set expected compression")
+          ("icompression", po::value<std::string>(), "set expected input compression")
+          ("ocompression", po::value<std::string>(), "set output compression")
           ("producers", po::value<int>(), "set the number of producers")
-          ("consumers", po::value<int>(), "set the number of consumers");
+          ("consumers", po::value<int>(), "set the number of consumers")
+          ("output", po::value<std::string>(), "set the output folder");
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, reinterpret_cast<const char *const *>(argv), desc), vm);
@@ -82,33 +82,54 @@ int main(int argc, char *argv[]) {
   if (vm.count("producers")) {
     LOG_INFO << "The number of producers set to "
              << vm["producers"].as<int>() << ".";
-  } else {
-    std::cerr << "The number of producers was not set.\n";
-    throw 10;
   }
 
   if (vm.count("consumers")) {
     LOG_INFO << "The number of consumers set to "
              << vm["consumers"].as<int>() << ".";
+  }
+
+  utils::compression_option input_compr;
+  utils::compression_option output_compr;
+
+  if (vm.count("icompression")) {
+    input_compr = utils::string_to_compression_option(vm["icompression"].as<std::string>());
+    if (input_compr == utils::null || input_compr == utils::lzma) {
+      LOG_ERROR << "Unsupported input compression option: " << utils::compression_option_to_string(input_compr);
+      throw 11;
+    }
+    LOG_INFO << "Expecting input compression: " << utils::compression_option_to_string(input_compr);
   } else {
-    std::cerr << "The number of consumers was not set.\n";
+    input_compr = utils::none;
+    LOG_INFO << "Expecting uncompressed input files. ";
+  }
+
+  if (vm.count("ocompression")) {
+    output_compr = utils::string_to_compression_option(vm["ocompression"].as<std::string>());
+    if (output_compr == utils::null || output_compr == utils::lzma) {
+      LOG_ERROR << "Unsupported output compression option: " << utils::compression_option_to_string(output_compr);
+      throw 11;
+    }
+    LOG_INFO << "Setting output compression: " << utils::compression_option_to_string(output_compr);
+  } else {
+    output_compr = utils::none;
+    LOG_INFO << "Using no compression for output files. ";
+  }
+
+  if (vm.count("output")) {
+    boost::filesystem::path output_dir(vm["output"].as<std::string>());
+    if (boost::filesystem::create_directory(output_dir)) {
+      LOG_INFO << "Outputting to: " << output_dir.string();
+    } else {
+      LOG_ERROR << "The output folder already exists!\n";
+      throw 17;
+    }
+  } else {
+    LOG_ERROR << "The output folder was not set!\n";
     throw 10;
   }
 
-  utils::compression_option compr;
 
-  if (vm.count("compression")) {
-    compr = utils::string_to_compression_option(vm["compression"].as<std::string>());
-    if (compr == utils::null) {
-      LOG_ERROR << "Unrecognised compression option!";
-      throw 11;
-    }
-    LOG_INFO << "Expecting compression: " << vm["compression"].as<std::string>();
-  } else {
-    compr = utils::none;
-    LOG_INFO << "Expecting uncompressed files. ";
-  }
-
-  return mono::start(vm.count("curl"), compr);
+  return mono::start(vm.count("curl"), vm["output"].as<std::string>(), input_compr, output_compr);
 
 }

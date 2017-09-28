@@ -40,11 +40,11 @@ target_compile_options(cld2_lib PRIVATE -Wno-c++11-narrowing -w)
 find_package(CURL REQUIRED)
 if (CURL_FOUND)
     include_directories(${CURL_INCLUDE_DIRS})
-endif()
+endif ()
 
 
 # mono
-add_executable(mono src/mono/mono.cpp src/mono/producer.cpp src/mono/warcfilter.cpp src/langsplit/langsplitfilter.cpp src/utils/curldownloader.cpp src/utils/common.cpp src/utils/logging.cpp)
+add_executable(mono src/mono/mono.cpp src/mono/producer.cpp src/mono/warcfilter.cpp src/langsplit/langsplitfilter.cpp src/utils/curldownloader.cpp src/utils/common.cpp src/utils/logging.cpp src/mono/langcollector.cpp)
 target_link_libraries(mono ${Boost_LIBRARIES} ${CURL_LIBRARIES} cld2_lib)
 
 

@@ -1,7 +1,8 @@
 
 #include "langsplitfilter.h"
 #include "../3rd_party/cld2/public/compact_lang_det.h"
-#include "boost/algorithm/string/trim.hpp"
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -19,7 +20,7 @@ namespace mono {
         return "";
       }
 
-      if (line.find(magic_number) == 0) {
+      if (boost::starts_with(line, magic_number)) {
         std::string res = PrintLanguageStats(flags, header, text_buffer, print_stats);
 
         text_buffer.erase();

@@ -17,6 +17,6 @@ target_link_libraries(test_langsplit ${GTEST_BOTH_LIBRARIES} ${Boost_LIBRARIES} 
 install(TARGETS test_langsplit DESTINATION tests)
 
 # test_integration
-add_executable(test_integration test_integration.cpp ../src/mono/producer.cpp ../src/mono/warcfilter.cpp ../src/langsplit/langsplitfilter.cpp ../src/utils/curldownloader.cpp)
+add_executable(test_integration test_integration.cpp ../src/mono/producer.cpp ../src/mono/warcfilter.cpp ../src/langsplit/langsplitfilter.cpp ../src/utils/curldownloader.cpp ../src/utils/common.cpp ../src/utils/logging.cpp ../src/mono/langcollector.cpp)
 target_link_libraries(test_integration ${GTEST_BOTH_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES} cld2_lib)
 install(TARGETS test_integration DESTINATION tests)

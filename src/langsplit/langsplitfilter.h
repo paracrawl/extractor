@@ -44,7 +44,7 @@ namespace mono {
         void close(Sink &snk, BOOST_IOS::openmode which) {
           boost::iostreams::line_filter::close(snk, which);
 
-          string_type line = PrintLanguageStats(flags, header, text_buffer, print_stats);;
+          string_type line = PrintLanguageStats(flags, header, text_buffer, print_stats);
           std::streamsize amt = static_cast<std::streamsize>(line.size());
           boost::iostreams::write_if(snk, line.data(), amt);
         }
