@@ -6,9 +6,9 @@
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/thread.hpp>
 #include <string>
 #include <vector>
-#include <mutex>
 #include <map>
 #include <utility>
 
@@ -30,9 +30,9 @@ namespace utils {
     public:
 
         T pop() {
-          std::lock_guard<std::mutex> guard(mutex);
+          boost::lock_guard<boost::mutex> lock(mutex);
           if (storage.empty()) {
-            return NULL;
+            return T();
           }
 
           std::string val = storage.back();
@@ -41,22 +41,22 @@ namespace utils {
         }
 
         void push(T val) {
-          std::lock_guard<std::mutex> guard(mutex);
+          boost::lock_guard<boost::mutex> lock(mutex);
           storage.push_back(val);
         }
 
         void reverse() {
-          std::lock_guard<std::mutex> guard(mutex);
+          boost::lock_guard<boost::mutex> lock(mutex);
           std::reverse(storage.begin(), storage.end());
         }
 
         int size() {
-          std::lock_guard<std::mutex> guard(mutex);
+          boost::lock_guard<boost::mutex> lock(mutex);
           return storage.size();
         }
 
     private:
-        std::mutex mutex;
+        boost::mutex mutex;
         std::vector<T> storage;
     };
 
@@ -71,7 +71,7 @@ namespace utils {
 
         language_sink(std::string output_folder_, utils::compression_option compr_);
 
-        std::map<std::string, std::pair<ostreambuf *, ofilesink *>> sinkmap;
+        std::map<std::string, std::pair<ostreambuf *, std::ofstream *>> sinkmap;
 
         void output(std::string const &lang, std::string const &text);
 
@@ -83,6 +83,28 @@ namespace utils {
         void add_language_sink(std::string lang);
 
         boost::filesystem::path get_langfile_path(std::string folder, std::string lang);
+
+    };
+
+    class progress {
+    public:
+
+        int current_progress;
+        int total;
+
+        progress(int total_);
+
+    public:
+
+        void increment();
+
+        void finish();
+
+    private:
+
+        void show_bar();
+
+        boost::mutex mutex;
 
     };
 

@@ -16,12 +16,32 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/device/null.hpp>
 
+#include <string>
+
 
 namespace mono {
 
+    void run_producer(shared_vector_string *files_to_process,
+                      utils::progress *prog, bool curl, std::string output_folder,
+                      utils::compression_option input_compr,
+                      utils::compression_option output_compr) {
+
+      while (files_to_process->size() > 0) {
+        std::string path = files_to_process->pop();
+        if (curl) {
+          producer_curl(path, output_folder, input_compr, output_compr);
+        } else {
+          producer_file(path, output_folder, input_compr, output_compr);
+        }
+
+        prog->increment();
+
+      }
+    }
+
     void
-    producer_file(std::string path, std::string output_folder, utils::compression_option input_compr, utils::compression_option output_compr) {
-      LOG_INFO << "Local files will be processed. ";
+    producer_file(std::string path, std::string output_folder, utils::compression_option input_compr,
+                  utils::compression_option output_compr) {
 
       std::ifstream input_file(path, std::ios_base::in | std::ios_base::binary);
       if (!boost::filesystem::exists(path)) {
@@ -45,8 +65,8 @@ namespace mono {
 
     }
 
-    void producer_curl(std::string url, std::string output_folder, utils::compression_option input_compr, utils::compression_option output_compr) {
-      LOG_INFO << "Using curl to download remote files. ";
+    void producer_curl(std::string url, std::string output_folder, utils::compression_option input_compr,
+                       utils::compression_option output_compr) {
 
       boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
 
@@ -61,7 +81,6 @@ namespace mono {
 
       std::ostream oqout(&qout);
       HTTPDownloader downloader;
-      std::cout << url << std::endl;
       downloader.download(url, &oqout);
 
     }

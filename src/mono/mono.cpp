@@ -1,5 +1,4 @@
 
-#include "pcqueue.h"
 #include "producer.h"
 #include "../utils/logging.h"
 #include "../utils/common.h"
@@ -17,42 +16,33 @@ typedef utils::shared_vector<std::string> shared_vector_string;
 
 namespace mono {
 
-    void thread_producer(util::PCQueue<int> *pcq) {
-      int r = rand();
-      (*pcq).Produce(r);
-      std::cout << "Producing: " << r << std::endl;
-    }
-
-    void thread_consumer(util::PCQueue<int> *pcq) {
-      std::chrono::milliseconds sleepDuration(100);
-      std::this_thread::sleep_for(sleepDuration);
-
-      int c = (*pcq).Consume();
-      std::cout << "Consumed: " << c << std::endl;
-    }
-
     void load_data_from_cin(shared_vector_string &data) {
       for (std::string path; std::getline(std::cin, path);) {
-        data.push(boost::trim_copy(path));
+        path = boost::trim_copy(path);
+        if (path.length() > 0)
+          data.push(path);
       }
       data.reverse();  // so that pop_back returns in the original order
     }
 
-    int start(bool curl, std::string output_folder, utils::compression_option input_compr, utils::compression_option output_compr) {
+    void start(int workers, bool curl, std::string output_folder, utils::compression_option input_compr,
+               utils::compression_option output_compr) {
+
       shared_vector_string files_to_process;
       load_data_from_cin(files_to_process);
       LOG_INFO << files_to_process.size() << " files found to process.";
 
-      while (files_to_process.size() > 0) {
-        std::string path = files_to_process.pop();
-        if (curl) {
-          producer_curl(path, output_folder, input_compr, output_compr);
-        } else {
-          producer_file(path, output_folder, input_compr, output_compr);
-        }
+      utils::progress prog(files_to_process.size());
+      boost::thread_group threads;
+      for (int id = 0; id < workers; ++id) {
+        std::string output_folder_thread = output_folder + "/" + std::to_string(id + 1);
+        boost::filesystem::create_directory(output_folder_thread);
+        threads.create_thread(
+                boost::bind(run_producer, &files_to_process, &prog, curl, output_folder_thread, input_compr,
+                            output_compr));
       }
-
-      return 0;
+      threads.join_all();
+      prog.finish();
     }
 
 }
@@ -66,8 +56,7 @@ int main(int argc, char *argv[]) {
           ("curl", "set the number of producers")
           ("icompression", po::value<std::string>(), "set expected input compression")
           ("ocompression", po::value<std::string>(), "set output compression")
-          ("producers", po::value<int>(), "set the number of producers")
-          ("consumers", po::value<int>(), "set the number of consumers")
+          ("workers", po::value<int>(), "set the number of workers")
           ("output", po::value<std::string>(), "set the output folder");
 
   po::variables_map vm;
@@ -79,14 +68,14 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  if (vm.count("producers")) {
-    LOG_INFO << "The number of producers set to "
-             << vm["producers"].as<int>() << ".";
-  }
+  if (vm.count("workers")) {
+    if (vm["workers"].as<int>() <= 0) {
+      LOG_ERROR << "The number of workers has to be >= 1";
+      throw 11;
+    }
 
-  if (vm.count("consumers")) {
-    LOG_INFO << "The number of consumers set to "
-             << vm["consumers"].as<int>() << ".";
+    LOG_INFO << "The number of workers set to "
+             << vm["workers"].as<int>() << ".";
   }
 
   utils::compression_option input_compr;
@@ -129,7 +118,15 @@ int main(int argc, char *argv[]) {
     throw 10;
   }
 
+  if (vm.count("curl")) {
+    LOG_INFO << "Using curl to download remote files. ";
+  } else {
+    LOG_INFO << "Local files will be processed. ";
+  }
 
-  return mono::start(vm.count("curl"), vm["output"].as<std::string>(), input_compr, output_compr);
+
+  mono::start(vm["workers"].as<int>(), vm.count("curl"), vm["output"].as<std::string>(), input_compr, output_compr);
+
+  return 0;
 
 }

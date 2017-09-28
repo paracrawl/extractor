@@ -4,6 +4,8 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+#include <boost/thread.hpp>
+#include <iostream>
 #include <map>
 
 
@@ -33,17 +35,18 @@ namespace utils {
       return "";
     }
 
-    language_sink::language_sink(std::string output_folder_, utils::compression_option compr_) : output_folder(output_folder_), compr(compr_) {};
+    language_sink::language_sink(std::string output_folder_, utils::compression_option compr_) : output_folder(
+            output_folder_), compr(compr_) {};
 
     void language_sink::output(std::string const &lang, std::string const &text) {
-      std::map<std::string, std::pair<ostreambuf *, ofilesink *>>::iterator it;
+      std::map<std::string, std::pair<ostreambuf *, std::ofstream *>>::iterator it;
 
       it = sinkmap.find(lang);
       if (it == sinkmap.end()) {
         add_language_sink(lang);
       }
 
-      std::pair<ostreambuf *, ofilesink *> q = sinkmap.at(lang);
+      std::pair<ostreambuf *, std::ofstream *> q = sinkmap.at(lang);
       ostreambuf *p = q.first;
       std::ostream outf(p);
       outf.write(text.c_str(), text.size());
@@ -60,7 +63,7 @@ namespace utils {
       std::string ofilesink_path = get_langfile_path(output_folder, lang).string();
       sinkmap.insert(std::make_pair(lang, std::make_pair(
               new ostreambuf(),
-              new ofilesink(ofilesink_path))));
+              new std::ofstream(ofilesink_path, std::ios_base::out | std::ios_base::app))));
 
       if (compr == utils::gzip) {
         sinkmap.at(lang).first->push(boost::iostreams::gzip_compressor());
@@ -74,4 +77,36 @@ namespace utils {
       return boost::filesystem::path(path.str());
     }
 
+    progress::progress(int total_) : current_progress(0), total(total_) {
+      std::cout << std::endl;
+      show_bar();
+    }
+
+    void progress::increment() {
+      boost::lock_guard<boost::mutex> lock(mutex);
+      ++current_progress;
+      show_bar();
+    }
+
+    void progress::show_bar() {
+      int bar_width = 70;
+
+      std::cout << " " << current_progress << "/" << total << " [";
+      int pos = bar_width * current_progress / float(total);
+      for (int i = 0; i < bar_width; ++i) {
+        if (i < pos)
+          std::cout << "=";
+        else if (i == pos)
+          std::cout << ">";
+        else
+          std::cout << " ";
+      }
+      std::cout << "] " << int(current_progress / float(total) * 100.0) << " %\r";
+      std::cout.flush();
+    };
+
+    void progress::finish() {
+      std::cout << std::endl;
+      std::cout << "Done." << std::endl;
+    }
 }
