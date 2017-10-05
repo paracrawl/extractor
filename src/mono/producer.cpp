@@ -9,7 +9,6 @@
 
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/filter/aggregate.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
@@ -43,7 +42,12 @@ namespace mono {
     producer_file(std::string path, std::string output_folder, utils::compression_option input_compr,
                   utils::compression_option output_compr) {
 
-      std::ifstream input_file(path, std::ios_base::in | std::ios_base::binary);
+      std::ios_base::openmode flags = std::ofstream::in;
+      if (input_compr == utils::gzip) {
+        flags |= std::ofstream::binary;
+      }
+
+      std::ifstream input_file(path, flags);
       if (!boost::filesystem::exists(path)) {
         std::cerr << "File not found!" << std::endl;
         return;

@@ -32,13 +32,6 @@ namespace mono {
 
         LangCollectorFilter(std::string output_folder_, utils::compression_option compr_);
 
-        template<typename Sink>
-        void close(Sink &snk, BOOST_IOS::openmode which) {
-          boost::iostreams::line_filter::close(snk, which);
-
-          ls.close_all();
-        }
-
 
     private:
 

@@ -2,11 +2,13 @@
 #include "common.h"
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/device/file.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/thread.hpp>
 #include <iostream>
-#include <map>
+#include <unordered_map>
+#include <memory>
 
 
 namespace utils {
@@ -39,37 +41,31 @@ namespace utils {
             output_folder_), compr(compr_) {};
 
     void language_sink::output(std::string const &lang, std::string const &text) {
-      std::map<std::string, std::pair<ostreambuf *, std::ofstream *>>::iterator it;
+      std::unordered_map<std::string, std::shared_ptr<ostreambuf> >::iterator it;
 
       it = sinkmap.find(lang);
       if (it == sinkmap.end()) {
         add_language_sink(lang);
       }
 
-      std::pair<ostreambuf *, std::ofstream *> q = sinkmap.at(lang);
-      ostreambuf *p = q.first;
-      std::ostream outf(p);
+      std::ostream outf(sinkmap.at(lang).get());
       outf.write(text.c_str(), text.size());
-    }
-
-    void language_sink::close_all() {
-      for (auto &pair : sinkmap) {
-        delete pair.second.first;
-        delete pair.second.second;
-      }
     }
 
     void language_sink::add_language_sink(std::string lang) {
       std::string ofilesink_path = get_langfile_path(output_folder, lang).string();
-      sinkmap.insert(std::make_pair(lang, std::make_pair(
-              new ostreambuf(),
-              new std::ofstream(ofilesink_path, std::ios_base::out | std::ios_base::app))));
+
+      auto out = std::make_shared<ostreambuf>();
+      sinkmap.insert(std::make_pair(lang, out));
+
+      std::ios_base::openmode flags = std::ofstream::app;
 
       if (compr == utils::gzip) {
-        sinkmap.at(lang).first->push(boost::iostreams::gzip_compressor());
+        sinkmap.at(lang)->push(boost::iostreams::gzip_compressor());
+        flags |= std::ofstream::binary;
       }
 
-      sinkmap.at(lang).first->push(*sinkmap.at(lang).second);
+      sinkmap.at(lang)->push(boost::iostreams::file_sink(ofilesink_path, flags));
     }
 
     boost::filesystem::path language_sink::get_langfile_path(std::string folder, std::string lang) {

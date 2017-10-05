@@ -9,8 +9,9 @@
 #include <boost/thread.hpp>
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <utility>
+#include <memory>
 
 
 namespace utils {
@@ -71,11 +72,9 @@ namespace utils {
 
         language_sink(std::string output_folder_, utils::compression_option compr_);
 
-        std::map<std::string, std::pair<ostreambuf *, std::ofstream *>> sinkmap;
+        std::unordered_map<std::string, std::shared_ptr<ostreambuf> > sinkmap;
 
         void output(std::string const &lang, std::string const &text);
-
-        void close_all();
 
 
     private:
