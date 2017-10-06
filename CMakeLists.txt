@@ -7,6 +7,12 @@ set(NAME extractor)
 # options
 option(BUILD_TEST "Build tests" ON)
 message("BUILD_TEST: " ${BUILD_TEST})
+option(WITH_LZMA "Build with lzma" ON)
+message("LZMA: " ${WITH_LZMA})
+
+if(WITH_LZMA)
+    add_definitions(-DWITH_LZMA)
+endif()
 
 # flags
 message("CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
@@ -44,7 +50,7 @@ endif ()
 
 
 # mono
-add_executable(mono src/mono/mono.cpp src/mono/producer.cpp src/mono/warcfilter.cpp src/langsplit/langsplitfilter.cpp src/utils/curldownloader.cpp src/utils/common.cpp src/utils/logging.cpp src/mono/langcollector.cpp)
+add_executable(mono src/mono/mono.cpp src/mono/producer.cpp src/mono/warcfilter.cpp src/langsplit/langsplitfilter.cpp src/utils/curldownloader.cpp src/utils/common.cpp src/utils/compression.cpp src/utils/logging.cpp src/mono/langcollector.cpp)
 target_link_libraries(mono ${Boost_LIBRARIES} ${CURL_LIBRARIES} cld2_lib)
 
 

@@ -2,6 +2,7 @@
 #ifndef EXTRACTOR_UTILS_COMMON_H
 #define EXTRACTOR_UTILS_COMMON_H
 
+#include "compression.h"
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -15,16 +16,6 @@
 
 
 namespace utils {
-
-    enum compression_option {
-        none, gzip, lzma, null
-    };
-
-    compression_option string_to_compression_option(std::string str);
-
-    std::string compression_option_to_string(compression_option compr);
-
-    std::string get_compression_extension(compression_option compr);
 
     template<class T>
     class shared_vector {

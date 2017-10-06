@@ -5,13 +5,13 @@
 #include "../langsplit/langsplitfilter.h"
 #include "../utils/curldownloader.h"
 #include "../utils/common.h"
+#include "../utils/compression.h"
 #include "../utils/logging.h"
 
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/iostreams/filter/aggregate.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/device/null.hpp>
 
@@ -56,9 +56,7 @@ namespace mono {
       boost::iostreams::filtering_streambuf<boost::iostreams::input> qin(input_file);
       boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
 
-      if (input_compr == utils::gzip) {
-        qout.push(boost::iostreams::gzip_decompressor());
-      }
+      add_decompression(&qout, input_compr);
 
       qout.push(WARCFilter());
       qout.push(LangsplitFilter());

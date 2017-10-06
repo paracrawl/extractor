@@ -95,8 +95,8 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("ocompression")) {
     output_compr = utils::string_to_compression_option(vm["ocompression"].as<std::string>());
-    if (output_compr == utils::null || output_compr == utils::lzma) {
-      LOG_ERROR << "Unsupported output compression option: " << utils::compression_option_to_string(output_compr);
+    if (output_compr == utils::null) {
+      LOG_ERROR << "Unsupported output compression option: " << vm["ocompression"].as<std::string>();
       throw 11;
     }
     LOG_INFO << "Setting output compression: " << utils::compression_option_to_string(output_compr);

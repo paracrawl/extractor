@@ -1,7 +1,7 @@
 
 #include "common.h"
+#include "compression.h"
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -12,30 +12,6 @@
 
 
 namespace utils {
-
-    compression_option string_to_compression_option(std::string str) {
-      if (str == "gzip") return gzip;
-      if (str == "lzma") return lzma;
-      if (str == "none") return none;
-
-      return null;
-    }
-
-    std::string compression_option_to_string(compression_option compr) {
-      if (compr == gzip) return "gzip";
-      if (compr == lzma) return "lzma";
-      if (compr == none) return "none";
-
-      return "";
-    }
-
-    std::string get_compression_extension(compression_option compr) {
-      if (compr == gzip) return "gz";
-      if (compr == lzma) return "lz";
-      if (compr == none) return "out";
-
-      return "";
-    }
 
     language_sink::language_sink(std::string output_folder_, utils::compression_option compr_) : output_folder(
             output_folder_), compr(compr_) {};
@@ -53,18 +29,19 @@ namespace utils {
     }
 
     void language_sink::add_language_sink(std::string lang) {
-      std::string ofilesink_path = get_langfile_path(output_folder, lang).string();
-
+      // add new stream to language map
       auto out = std::make_shared<ostreambuf>();
       sinkmap.insert(std::make_pair(lang, out));
 
+      // flags
       std::ios_base::openmode flags = std::ofstream::app;
-
-      if (compr == utils::gzip) {
-        sinkmap.at(lang)->push(boost::iostreams::gzip_compressor());
+      if (compr == utils::gzip || compr == utils::gzip || compr == utils::gzip || compr == utils::gzip) {
         flags |= std::ofstream::binary;
       }
 
+      // add file sink with compression
+      utils::add_compression(sinkmap.at(lang), compr);
+      std::string ofilesink_path = get_langfile_path(output_folder, lang).string();
       sinkmap.at(lang)->push(boost::iostreams::file_sink(ofilesink_path, flags));
     }
 
