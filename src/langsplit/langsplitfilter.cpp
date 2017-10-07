@@ -3,8 +3,10 @@
 #include "../3rd_party/cld2/public/compact_lang_det.h"
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -12,6 +14,32 @@
 
 
 namespace mono {
+
+    LangsplitFilter::LangsplitFilter(std::string output_folder_) : boost::iostreams::line_filter(true),
+                                                                   output_folder(output_folder_), header(""),
+                                                                   text_buffer(""),
+                                                                   num_reliable(0), num_unreliable(0) {
+      flags = get_flag(modes);
+      print_stats = false;
+
+      for (int i = 0; i < modes.size(); ++i) {
+        if (modes.at(i) == "--printstats") {
+          print_stats = true;
+        }
+      }
+    }
+
+    LangsplitFilter::~LangsplitFilter() {
+      if (num_reliable == 0 && num_unreliable == 0) {
+        return;
+      }
+
+      std::ofstream logfile;
+      logfile.open(output_folder + "/" + "langsplit.log", std::ios::out | std::ios::app);
+      boost::format text = boost::format("reliable:%d unreliable:%d\n") % num_reliable % num_unreliable;
+      logfile << text.str();
+      logfile.close();
+    }
 
     std::string LangsplitFilter::do_filter(const std::string &str_) {
       std::string line = boost::trim_copy(str_);
@@ -88,6 +116,8 @@ namespace mono {
               &is_reliable, &valid_prefix_bytes);
 
       if (is_reliable) {
+        ++num_reliable;
+
         if (print_stats) {
           ss << output_stats(buffer, header, percent3, language3, normalized_score3);
         } else {
@@ -104,7 +134,7 @@ namespace mono {
           }
         }
       } else {
-        std::cerr << "prediction unrealiable" << "\n";
+        ++num_unreliable;
       }
 
       return ss.str();

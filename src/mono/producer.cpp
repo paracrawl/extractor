@@ -59,7 +59,7 @@ namespace mono {
       add_decompression(&qout, input_compr);
 
       qout.push(WARCFilter());
-      qout.push(LangsplitFilter());
+      qout.push(LangsplitFilter(output_folder));
       qout.push(LangCollectorFilter(output_folder, output_compr));
       qout.push(boost::iostreams::null_sink());
 
@@ -77,7 +77,7 @@ namespace mono {
       }
 
       qout.push(WARCFilter());
-      qout.push(LangsplitFilter());
+      qout.push(LangsplitFilter(output_folder));
       qout.push(LangCollectorFilter(output_folder, output_compr));
       qout.push(boost::iostreams::null_sink());
 

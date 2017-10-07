@@ -23,22 +23,18 @@ namespace mono {
         int flags;
         bool print_stats;
 
+        std::string output_folder;
         std::string header;
-
         std::string text_buffer;
+
+        long num_reliable;
+        long num_unreliable;
 
         std::vector<std::string> modes = std::vector<std::string>();
 
-        LangsplitFilter() : boost::iostreams::line_filter(true), header(""), text_buffer("") {
-          flags = get_flag(modes);
-          print_stats = false;
+        LangsplitFilter(std::string output_folder_);
 
-          for (int i = 0; i < modes.size(); ++i) {
-            if (modes.at(i) == "--printstats") {
-              print_stats = true;
-            }
-          }
-        }
+        virtual ~LangsplitFilter();
 
         template<typename Sink>
         void close(Sink &snk, BOOST_IOS::openmode which) {

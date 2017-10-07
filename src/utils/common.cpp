@@ -1,6 +1,7 @@
 
 #include "common.h"
 #include "compression.h"
+#include "logging.h"
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/filesystem.hpp>
@@ -80,6 +81,6 @@ namespace utils {
 
     void progress::finish() {
       std::cout << std::endl;
-      std::cout << "Done." << std::endl;
+      LOG_INFO << "Done.";
     }
 }
