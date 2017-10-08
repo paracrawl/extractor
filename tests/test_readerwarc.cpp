@@ -1,6 +1,6 @@
 
 #include "gtest/gtest.h"
-#include "../src/mono/warcfilter.h"
+#include "../src/mono/filters/warcfilter.h"
 
 #include <iostream>
 #include <fstream>
@@ -31,7 +31,7 @@ void compare(std::string input_file, std::string expected_result_file) {
   std::stringstream output;
   boost::iostreams::filtering_streambuf<boost::iostreams::input> in(test1_input);
   boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
-  out.push(mono::WARCFilter());
+  out.push(mono::filters::WARCFilter());
   out.push(output);
   boost::iostreams::copy(in, out);
 

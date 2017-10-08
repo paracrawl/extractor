@@ -1,6 +1,6 @@
 
 #include "gtest/gtest.h"
-#include "../src/mono/producer.h"
+#include "../src/mono/worker.h"
 #include "../src/utils/common.h"
 #include "boost/filesystem/fstream.hpp"
 #include "boost/filesystem/operations.hpp"
@@ -57,7 +57,7 @@ void compare(std::string test_name, std::string input_file, std::string output_f
 
   if (boost::filesystem::create_directory(boost::filesystem::path(output_dir.string() + "/" + test_name))) {
 
-    mono::producer_file(test1_input_path, output_folder + "/" + test_name, in_compr, out_compr);
+    mono::worker_file(test1_input_path, output_folder + "/" + test_name, in_compr, out_compr);
     for (auto a: test_files) {
       compare_lengths(output_folder + "/" + test_name + "/" + a.first, a.second);
     }

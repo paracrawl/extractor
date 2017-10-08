@@ -3,16 +3,10 @@
 #define EXTRACTOR_UTILS_COMMON_H
 
 #include "compression.h"
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 #include <string>
 #include <vector>
-#include <unordered_map>
-#include <utility>
-#include <memory>
+//#include <utility>
 
 
 namespace utils {
@@ -52,29 +46,6 @@ namespace utils {
         std::vector<T> storage;
     };
 
-    typedef boost::iostreams::filtering_streambuf<boost::iostreams::output> ostreambuf;
-    typedef boost::iostreams::stream_buffer<boost::iostreams::file_sink> ofilesink;
-
-    class language_sink {
-    public:
-
-        std::string output_folder;
-        utils::compression_option compr;
-
-        language_sink(std::string output_folder_, utils::compression_option compr_);
-
-        std::unordered_map<std::string, std::shared_ptr<ostreambuf> > sinkmap;
-
-        void output(std::string const &lang, std::string const &text);
-
-
-    private:
-
-        void add_language_sink(std::string lang);
-
-        boost::filesystem::path get_langfile_path(std::string folder, std::string lang);
-
-    };
 
     class progress {
     public:

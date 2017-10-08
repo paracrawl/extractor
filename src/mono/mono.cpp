@@ -1,10 +1,11 @@
 
-#include "producer.h"
+#include "worker.h"
 #include "../utils/logging.h"
 #include "../utils/common.h"
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/filesystem.hpp>
 #include <iostream>
 #include <thread>
 #include <sstream>
@@ -49,7 +50,7 @@ namespace mono {
         std::string output_folder_thread = output_folder + "/" + std::to_string(id + 1);
         boost::filesystem::create_directory(output_folder_thread);
         threads.create_thread(
-                boost::bind(run_producer, &files_to_process, &prog, curl, output_folder_thread, input_compr,
+                boost::bind(run_worker, &files_to_process, &prog, curl, output_folder_thread, input_compr,
                             output_compr));
       }
       threads.join_all();

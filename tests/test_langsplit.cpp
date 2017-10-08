@@ -1,6 +1,6 @@
 
 #include "gtest/gtest.h"
-#include "../src/langsplit/langsplitfilter.h"
+#include "../src/mono/filters/langsplitfilter.h"
 
 #include <iostream>
 #include <fstream>
@@ -29,7 +29,7 @@ void compare(std::string input_file, std::string expected_result_file) {
 
   // apply filter
   std::stringstream output;
-  mono::LangsplitFilter langsplitFilter = mono::LangsplitFilter();
+  mono::filters::LangsplitFilter langsplitFilter = mono::filters::LangsplitFilter("../../tests/data_langsplit/");
   boost::iostreams::filtering_streambuf<boost::iostreams::input> in(test1_input);
   boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
   out.push(langsplitFilter);
