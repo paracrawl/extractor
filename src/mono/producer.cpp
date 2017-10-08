@@ -33,6 +33,8 @@ namespace mono {
           producer_file(path, output_folder, input_compr, output_compr);
         }
 
+        logging::log_done(output_folder, path);
+
         prog->increment();
 
       }

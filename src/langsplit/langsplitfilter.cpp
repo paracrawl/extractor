@@ -1,12 +1,11 @@
 
 #include "langsplitfilter.h"
+#include "../utils/logging.h"
 #include "../3rd_party/cld2/public/compact_lang_det.h"
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -34,11 +33,7 @@ namespace mono {
         return;
       }
 
-      std::ofstream logfile;
-      logfile.open(output_folder + "/" + "langsplit.log", std::ios::out | std::ios::app);
-      boost::format text = boost::format("reliable:%d unreliable:%d\n") % num_reliable % num_unreliable;
-      logfile << text.str();
-      logfile.close();
+      logging::log_reliable(output_folder, num_reliable, num_unreliable);
     }
 
     std::string LangsplitFilter::do_filter(const std::string &str_) {

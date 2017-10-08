@@ -8,10 +8,16 @@
 
 #include <boost/log/trivial.hpp>
 
+#include <string>
+
 
 namespace logging {
 
     void init();
+
+    void log_reliable(std::string output_folder, int num_reliable, int num_unreliable);
+
+    void log_done(std::string output_folder, std::string processed);
 
 }
 
