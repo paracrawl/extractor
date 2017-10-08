@@ -8,6 +8,7 @@
 #include <iostream>
 #include <thread>
 #include <sstream>
+#include <sys/resource.h>
 
 
 namespace po = boost::program_options;
@@ -15,6 +16,16 @@ namespace po = boost::program_options;
 typedef utils::shared_vector<std::string> shared_vector_string;
 
 namespace mono {
+
+    long get_ulimit() {
+      struct rlimit limit;
+
+      if (getrlimit(RLIMIT_NOFILE, &limit) != 0) {
+        return -1;
+      }
+
+      return (long) limit.rlim_cur;
+    }
 
     void load_data_from_cin(shared_vector_string &data) {
       for (std::string path; std::getline(std::cin, path);) {
@@ -76,6 +87,17 @@ int main(int argc, char *argv[]) {
 
     LOG_INFO << "The number of workers set to "
              << vm["workers"].as<int>() << ".";
+  }
+
+  // check system resources
+  long curr_ulimit = mono::get_ulimit();
+  long sufficient_limit = 400 * vm["workers"].as<int>();
+  LOG_INFO << "Current limit of open file descriptors: " << curr_ulimit;
+  if (curr_ulimit == -1) {
+    LOG_ERROR << "Failed to read available system resources!";
+  } else if (curr_ulimit < sufficient_limit) {
+    LOG_ERROR << "The limit of open file descriptors is too low - should be at least: " << sufficient_limit;
+    throw 19;
   }
 
   utils::compression_option input_compr;
