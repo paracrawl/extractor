@@ -43,4 +43,11 @@ namespace logging {
       logfile.close();
     }
 
+    void log_error(std::string output_folder, std::string text) {
+      std::ofstream logfile;
+      logfile.open(output_folder + "/" + "error.log", std::ios::out | std::ios::app);
+      logfile << std::string(text + "\n");
+      logfile.close();
+    }
+
 }

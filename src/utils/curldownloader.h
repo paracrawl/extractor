@@ -14,7 +14,7 @@ public:
 
     ~HTTPDownloader();
 
-    void download(const std::string &url, std::ostream *poqout);
+    void download(const std::string &url, std::ostream *poqout, std::string output_folder);
 
 
 private:

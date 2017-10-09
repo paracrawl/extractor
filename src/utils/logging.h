@@ -19,6 +19,8 @@ namespace logging {
 
     void log_done(std::string output_folder, std::string processed);
 
+    void log_error(std::string output_folder, std::string text);
+
 }
 
 #endif //EXTRACTOR_UTILS_LOGGING_H

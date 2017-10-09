@@ -74,9 +74,7 @@ namespace mono {
 
       boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
 
-      if (input_compr == utils::gzip) {
-        qout.push(boost::iostreams::gzip_decompressor());
-      }
+      add_decompression(&qout, input_compr);
 
       qout.push(filters::WARCFilter());
       qout.push(filters::LangsplitFilter(output_folder));
@@ -85,7 +83,7 @@ namespace mono {
 
       std::ostream oqout(&qout);
       HTTPDownloader downloader;
-      downloader.download(url, &oqout);
+      downloader.download(url, &oqout, output_folder);
 
     }
 
