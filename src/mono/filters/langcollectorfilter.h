@@ -34,6 +34,12 @@ namespace mono {
 
             LangCollectorFilter(std::string output_folder_, utils::compression_option compr_);
 
+            template<typename Sink>
+            void close(Sink &snk, BOOST_IOS::openmode which) {
+              output_to_langsink(); // flush text buffer
+              boost::iostreams::line_filter::close(snk, which);
+            }
+
 
         private:
 
@@ -46,7 +52,7 @@ namespace mono {
 
             std::string find_language(std::string const &str);
 
-            void output_to_langsink(std::string const &lang, std::string const &text);
+            bool output_to_langsink();
 
         };
 

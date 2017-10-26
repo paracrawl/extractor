@@ -29,22 +29,11 @@ namespace mono {
           }
 
           if (boost::starts_with(line, magic_number)) {
-            if (header.size() > 0) {
-              std::string res = header + '\n' + text_buffer;
-              std::string lang = parse_language(header);
-
-              text_buffer.erase();
-
-              if (lang.length() == 0) {
-                header = "";
-                return "";
-              }
-
-              output_to_langsink(lang, res);
-
+            if (output_to_langsink()) {
+              return "";
             }
 
-            // load header
+            // update header
             header = line;
 
             return "";
@@ -80,8 +69,23 @@ namespace mono {
           return "";
         };
 
-        void LangCollectorFilter::output_to_langsink(std::string const &lang, std::string const &text) {
-          ls.output(lang, text);
+        bool LangCollectorFilter::output_to_langsink() {
+          if (header.size() > 0) {
+            std::string res = header + '\n' + text_buffer;
+            std::string lang = parse_language(header);
+
+            text_buffer.erase();
+
+            if (lang.length() == 0) {
+              header = "";
+              return true;
+            }
+
+            ls.output(lang, res);
+
+          }
+
+          return false;
         }
 
     }

@@ -79,6 +79,10 @@ TEST(integration, test_simple_gzip_to_langsplit) {
   test2_files.push_back(std::make_pair("text.de.out", "test2_de.out"));
   test2_files.push_back(std::make_pair("text.ru.out", "test2_ru.out"));
 
+  pair_files_vec test3_files;
+  test3_files.push_back(std::make_pair("text.en.out", "test3_en.out"));
+
   compare("test1", "test1.in.gz", "test_output", test1_files, utils::gzip, utils::none);
   compare("test2", "test2.in.gz", "test_output", test2_files, utils::gzip, utils::none);
+  compare("test3", "test3.in", "test_output", test3_files, utils::none, utils::none);
 }
