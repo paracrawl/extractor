@@ -23,7 +23,7 @@ HTTPDownloader::~HTTPDownloader() {
   curl_easy_cleanup(curl);
 }
 
-void HTTPDownloader::download(const std::string &url, std::ostream *poqout, std::string output_folder) {
+CURLcode HTTPDownloader::download(const std::string &url, std::ostream *poqout) {
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, poqout);
@@ -31,11 +31,5 @@ void HTTPDownloader::download(const std::string &url, std::ostream *poqout, std:
   curl_easy_setopt(curl, CURLOPT_FAILONERROR, true);
 
   CURLcode res = curl_easy_perform(curl);
-
-  // Check for errors
-  if (res != CURLE_OK) {
-    std::string error_text = "Failed to download: " + url + " with error: " + curl_easy_strerror(res);
-    logging::log_error(output_folder, error_text);
-  }
-
+  return res;
 }

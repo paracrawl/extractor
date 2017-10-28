@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <curl/curl.h>
 
 
 class HTTPDownloader {
@@ -14,7 +15,7 @@ public:
 
     ~HTTPDownloader();
 
-    void download(const std::string &url, std::ostream *poqout, std::string output_folder);
+    CURLcode download(const std::string &url, std::ostream *poqout);
 
 
 private:
