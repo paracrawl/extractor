@@ -1,5 +1,6 @@
 
 #include "warcfilter.h"
+#include "../../utils/common.h"
 
 #include <iostream>
 #include <sstream>
@@ -52,8 +53,10 @@ namespace mono {
               if (boost::starts_with(str, "WARC/1.0")) {
                 state = 1;
               } else {
-                if (!(str.empty()))
+                if (!(str.empty())) {
+                  utils::fix_utf8_string(str);
                   return str + '\n';
+                }
               }
               break;
           }

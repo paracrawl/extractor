@@ -1,6 +1,7 @@
 
 #include "common.h"
 #include "logging.h"
+#include "../3rd_party/utf8/source/utf8.h"
 
 #include <iostream>
 
@@ -39,4 +40,11 @@ namespace utils {
       std::cout << std::endl;
       LOG_INFO << "Done.";
     }
+
+    void fix_utf8_string(std::string &str) {
+      std::string temp;
+      utf8::replace_invalid(str.begin(), str.end(), back_inserter(temp));
+      str = temp;
+    }
+
 }

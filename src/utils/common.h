@@ -6,7 +6,6 @@
 #include <boost/thread.hpp>
 #include <string>
 #include <vector>
-//#include <utility>
 
 
 namespace utils {
@@ -68,6 +67,8 @@ namespace utils {
         boost::mutex mutex;
 
     };
+
+    void fix_utf8_string(std::string& str);
 
 }
 
