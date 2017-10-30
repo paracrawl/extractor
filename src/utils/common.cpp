@@ -63,7 +63,7 @@ namespace utils {
     int parse_uri::parse_scheme(int start, const std::string &uri) {
       std::string uri_stripped = uri.substr(start, uri.length() - start);
       int found = uri.find("://");
-      if (found != (int) std::string::npos) {
+      if (found != static_cast<int>(std::string::npos)) {
         uri_scheme = uri.substr(0, found);
         return found + 3;
       }
@@ -74,25 +74,25 @@ namespace utils {
     int parse_uri::parse_domains(int start, const std::string &uri) {
       // parse authority
       int found_authority = uri.find("/", start);
-      if (found_authority == (int) std::string::npos)
+      if (found_authority == static_cast<int>(std::string::npos))
         found_authority = uri.length();
       std::string domain = uri.substr(start, found_authority - start);
 
       // remove user information
       int found_user = domain.find("@");
-      if (found_user != (int) std::string::npos) {
+      if (found_user != static_cast<int>(std::string::npos)) {
         domain = domain.substr(found_user + 1, domain.length() - found_user - 1);
       }
 
       // remove port
       int found_port = domain.find_last_of(":");
-      if (found_port != (int) std::string::npos) {
+      if (found_port != static_cast<int>(std::string::npos)) {
         domain = domain.substr(0, found_port);
       }
 
       // parse tld
       int found_tld_start = domain.find_last_of(".");
-      if (found_tld_start == (int) std::string::npos)
+      if (found_tld_start == static_cast<int>(std::string::npos))
         found_tld_start = 0;
       else
         ++found_tld_start;
@@ -106,12 +106,12 @@ namespace utils {
     }
 
     int parse_uri::parse_path(int start, const std::string &uri) {
-      if (start >= (int) uri.length())
+      if (start >= static_cast<int>(uri.length()))
         return uri.length();
 
       // parse path
       int found_path = uri.find("?", start);
-      if (found_path == (int) std::string::npos)
+      if (found_path == static_cast<int>(std::string::npos))
         found_path = uri.length();
       uri_path = uri.substr(start, found_path - start);
 

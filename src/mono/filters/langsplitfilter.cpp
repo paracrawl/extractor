@@ -90,13 +90,11 @@ namespace mono {
 
           const Header header_values(header);
           const std::string uri = header_values.get_uri();
-          const std::string tld = header_values.get_tld();
           utils::parse_uri parsed_uri(uri);
 
-          bool is_plain_text = true;
           CLD2::CLDHints cld_hints = {NULL, NULL, UNKNOWN_ENCODING,
                                       CLD2::UNKNOWN_LANGUAGE};
-          if (!tld.empty()) {
+          if (!parsed_uri.get_tld().empty()) {
             cld_hints.tld_hint = parsed_uri.get_tld().c_str();
           }
 
@@ -110,7 +108,7 @@ namespace mono {
           bool is_reliable;
 
           CLD2::ExtDetectLanguageSummaryCheckUTF8(
-                  buffer.c_str(), buffer.size(), is_plain_text, &cld_hints, flags,
+                  buffer.c_str(), buffer.size(), true, &cld_hints, flags,
                   language3, percent3, normalized_score3, &resultchunkvector, &text_bytes,
                   &is_reliable, &valid_prefix_bytes);
 
@@ -127,9 +125,8 @@ namespace mono {
               const std::string lang_code = LanguageCode(rc_lang);
               ss << output_chunk(buffer, rc, header, lang_code);
 
-              // print stats
               if (print_stats) {
-                bmap.add(std::make_pair(parsed_uri.get_domain(), lang_code), (long) rc.bytes);
+                bmap.add(std::make_pair(parsed_uri.get_domain(), lang_code), static_cast<long>(rc.bytes));
               }
             }
 
@@ -146,10 +143,7 @@ namespace mono {
           std::stringstream ss;
           const std::string chunk = std::string(buffer, rc.offset, rc.bytes);
 
-          ss << header << " language:" << lang_code
-             << " offset:" << rc.offset << " bytes:" << rc.bytes
-             << "\n" << chunk << "\n";
-
+          ss << header << " language:" << lang_code << " bytes:" << rc.bytes << "\n" << chunk << "\n";
           return ss.str();
         }
 
