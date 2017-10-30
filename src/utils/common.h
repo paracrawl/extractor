@@ -68,7 +68,36 @@ namespace utils {
 
     };
 
-    void fix_utf8_string(std::string& str);
+    class parse_uri {
+    public:
+
+        std::string uri_scheme;
+        std::string uri_domain;
+        std::string uri_tld;
+        std::string uri_path;
+
+        const std::string &get_scheme() const;
+
+        const std::string &get_domain() const;
+
+        const std::string &get_path() const;
+
+        const std::string &get_tld() const;
+
+        parse_uri(const std::string &uri);
+
+
+    private:
+
+        int parse_scheme(int start, const std::string &uri);
+
+        int parse_domains(int start, const std::string &uri);
+
+        int parse_path(int start, const std::string &uri);
+
+    };
+
+    void fix_utf8_string(std::string &str);
 
 }
 

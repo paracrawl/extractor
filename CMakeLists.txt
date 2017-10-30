@@ -50,7 +50,7 @@ endif ()
 
 
 # mono
-add_executable(mono src/mono/mono.cpp src/mono/filters/langcollectorfilter.cpp src/mono/filters/langsplitfilter.cpp src/mono/filters/warcfilter.cpp src/mono/language_sink.cpp src/mono/worker.cpp src/utils/curldownloader.cpp src/utils/common.cpp src/utils/compression.cpp src/utils/logging.cpp)
+add_executable(mono src/mono/mono.cpp src/mono/filters/langcollectorfilter.cpp src/mono/filters/langsplitfilter.cpp src/mono/filters/warcfilter.cpp src/mono/language_sink.cpp src/mono/buffered_map.cpp src/mono/worker.cpp src/utils/curldownloader.cpp src/utils/common.cpp src/utils/compression.cpp src/utils/logging.cpp)
 target_link_libraries(mono ${Boost_LIBRARIES} ${CURL_LIBRARIES} cld2_lib)
 
 

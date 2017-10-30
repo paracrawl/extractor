@@ -1,5 +1,7 @@
 
 #include "langsplitfilter.h"
+#include "../buffered_map.h"
+#include "../../utils/common.h"
 #include "../../utils/logging.h"
 #include "compact_lang_det.h"
 #include <boost/algorithm/string/trim.hpp>
@@ -10,24 +12,23 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <compact_lang_det.h>
 
 
 namespace mono {
 
     namespace filters {
 
-        LangsplitFilter::LangsplitFilter(std::string output_folder_) : boost::iostreams::line_filter(true),
-                                                                       output_folder(output_folder_), header(""),
-                                                                       text_buffer(""),
-                                                                       num_reliable(0), num_unreliable(0) {
+        LangsplitFilter::LangsplitFilter(std::string output_folder_, bool print_stats_) :
+                boost::iostreams::line_filter(true),
+                print_stats(print_stats_),
+                bmap(output_folder_, 1000000),
+                output_folder(output_folder_),
+                header(""),
+                text_buffer(""),
+                num_reliable(0),
+                num_unreliable(0) {
           flags = get_flag(modes);
-          print_stats = false;
-
-          for (int i = 0; i < (int) modes.size(); ++i) {
-            if (modes.at(i) == "--printstats") {
-              print_stats = true;
-            }
-          }
         }
 
         LangsplitFilter::~LangsplitFilter() {
@@ -46,7 +47,7 @@ namespace mono {
           }
 
           if (boost::starts_with(line, magic_number)) {
-            std::string res = PrintLanguageStats(flags, header, text_buffer, print_stats);
+            std::string res = PrintLanguageStats(flags, header, text_buffer);
 
             text_buffer.erase();
             header = line;
@@ -81,7 +82,7 @@ namespace mono {
         }
 
         std::string LangsplitFilter::PrintLanguageStats(const int flags, const std::string &header,
-                                                        const std::string &buffer, const bool print_stats) {
+                                                        const std::string &buffer) {
           std::stringstream ss;
           if (header.empty() || buffer.empty()) {
             return "";
@@ -90,12 +91,13 @@ namespace mono {
           const Header header_values(header);
           const std::string uri = header_values.get_uri();
           const std::string tld = header_values.get_tld();
+          utils::parse_uri parsed_uri(uri);
 
           bool is_plain_text = true;
           CLD2::CLDHints cld_hints = {NULL, NULL, UNKNOWN_ENCODING,
                                       CLD2::UNKNOWN_LANGUAGE};
           if (!tld.empty()) {
-            cld_hints.tld_hint = tld.c_str();
+            cld_hints.tld_hint = parsed_uri.get_tld().c_str();
           }
 
           CLD2::Language language3[3];
@@ -114,22 +116,23 @@ namespace mono {
 
           if (is_reliable) {
             ++num_reliable;
+            for (int i = 0; i < static_cast<int>(resultchunkvector.size()); ++i) {
+              const CLD2::ResultChunk &rc = resultchunkvector[i];
+              CLD2::Language rc_lang = static_cast<CLD2::Language>(rc.lang1);
 
-            if (print_stats) {
-              ss << output_stats(buffer, header, percent3, language3, normalized_score3);
-            } else {
-              for (int i = 0; i < static_cast<int>(resultchunkvector.size()); ++i) {
-                const CLD2::ResultChunk &rc = resultchunkvector[i];
-                CLD2::Language rc_lang = static_cast<CLD2::Language>(rc.lang1);
+              if (rc_lang == CLD2::UNKNOWN_LANGUAGE) {
+                continue;
+              }
 
-                if (rc_lang == CLD2::UNKNOWN_LANGUAGE) {
-                  continue;
-                }
+              const std::string lang_code = LanguageCode(rc_lang);
+              ss << output_chunk(buffer, rc, header, lang_code);
 
-                const std::string lang_code = LanguageCode(rc_lang);
-                ss << output_chunk(buffer, rc, header, lang_code);
+              // print stats
+              if (print_stats) {
+                bmap.add(std::make_pair(parsed_uri.get_domain(), lang_code), (long) rc.bytes);
               }
             }
+
           } else {
             ++num_unreliable;
           }
@@ -146,23 +149,6 @@ namespace mono {
           ss << header << " language:" << lang_code
              << " offset:" << rc.offset << " bytes:" << rc.bytes
              << "\n" << chunk << "\n";
-
-          return ss.str();
-        }
-
-        std::string
-        LangsplitFilter::output_stats(const std::string buffer, const std::string header, int percent3[],
-                                      CLD2::Language language3[],
-                                      double normalized_score3[]) {
-          std::stringstream ss;
-
-          ss << header << " bytes:" << buffer.size() << "\n";
-          for (int i = 0; i < 3; i++) {
-            if (percent3[i] > 0) {
-              ss << LanguageName(language3[i]) << "\t" << percent3[i] << "\t"
-                 << normalized_score3[i] << "\n";
-            }
-          }
 
           return ss.str();
         }

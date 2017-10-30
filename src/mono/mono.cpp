@@ -37,8 +37,9 @@ namespace mono {
       data.reverse();  // so that pop_back returns in the original order
     }
 
-    void start(int workers, bool curl, std::string output_folder, utils::compression_option input_compr,
-               utils::compression_option output_compr) {
+    void
+    start(int workers, bool curl, bool print_stats, std::string output_folder, utils::compression_option input_compr,
+          utils::compression_option output_compr) {
 
       shared_vector_string files_to_process;
       load_data_from_cin(files_to_process);
@@ -49,8 +50,11 @@ namespace mono {
       for (int id = 0; id < workers; ++id) {
         std::string output_folder_thread = output_folder + "/" + std::to_string(id + 1);
         boost::filesystem::create_directory(output_folder_thread);
+        if (print_stats) {
+          boost::filesystem::create_directory(output_folder_thread + "/stats");
+        }
         threads.create_thread(
-                boost::bind(run_worker, &files_to_process, &prog, curl, output_folder_thread, input_compr,
+                boost::bind(run_worker, &files_to_process, &prog, curl, print_stats, output_folder_thread, input_compr,
                             output_compr));
       }
       threads.join_all();
@@ -65,7 +69,8 @@ int main(int argc, char *argv[]) {
   po::options_description desc("Allowed options");
   desc.add_options()
           ("help", "produce help message")
-          ("curl", "set the number of producers")
+          ("curl", "uses curl to download remote files")
+          ("print_stats", "prints language statistics")
           ("icompression", po::value<std::string>(), "set expected input compression")
           ("ocompression", po::value<std::string>(), "set output compression")
           ("workers", po::value<int>(), "set the number of workers")
@@ -147,8 +152,15 @@ int main(int argc, char *argv[]) {
     LOG_INFO << "Local files will be processed. ";
   }
 
+  if (vm.count("print_stats")) {
+    LOG_INFO << "Printing language statistics: On";
+  } else {
+    LOG_INFO << "Printing language statistics: Off";
+  }
 
-  mono::start(vm["workers"].as<int>(), vm.count("curl"), vm["output"].as<std::string>(), input_compr, output_compr);
+
+  mono::start(vm["workers"].as<int>(), vm.count("curl"), vm.count("print_stats"), vm["output"].as<std::string>(),
+              input_compr, output_compr);
 
   return 0;
 

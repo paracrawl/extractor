@@ -53,11 +53,10 @@ void compare(std::string test_name, std::string input_file, std::string output_f
   }
 
   boost::filesystem::path output_dir(output_folder);
-  boost::filesystem::create_directory(output_dir);
 
   if (boost::filesystem::create_directory(boost::filesystem::path(output_dir.string() + "/" + test_name))) {
 
-    mono::worker_file(test1_input_path, output_folder + "/" + test_name, in_compr, out_compr);
+    mono::worker_file(test1_input_path, false, output_folder + "/" + test_name, in_compr, out_compr);
     for (auto a: test_files) {
       compare_lengths(output_folder + "/" + test_name + "/" + a.first, a.second);
     }
@@ -71,6 +70,12 @@ void compare(std::string test_name, std::string input_file, std::string output_f
 
 
 TEST(integration, test_simple_gzip_to_langsplit) {
+  std::string output_dir = "test_dir_integration";
+  if (!boost::filesystem::create_directory(output_dir)) {
+    std::cerr << "Output folder already exists! Please remove: " << output_dir << std::endl;
+    FAIL();
+  }
+
   pair_files_vec test1_files;
   test1_files.push_back(std::make_pair("text.ja.out", "test1_ja.out"));
   test1_files.push_back(std::make_pair("text.en.out", "test1_en.out"));
@@ -82,7 +87,7 @@ TEST(integration, test_simple_gzip_to_langsplit) {
   pair_files_vec test3_files;
   test3_files.push_back(std::make_pair("text.en.out", "test3_en.out"));
 
-  compare("test1", "test1.in.gz", "test_output", test1_files, utils::gzip, utils::none);
-  compare("test2", "test2.in.gz", "test_output", test2_files, utils::gzip, utils::none);
-  compare("test3", "test3.in", "test_output", test3_files, utils::none, utils::none);
+  compare("test1", "test1.in.gz", output_dir, test1_files, utils::gzip, utils::none);
+  compare("test2", "test2.in.gz", output_dir, test2_files, utils::gzip, utils::none);
+  compare("test3", "test3.in", output_dir, test3_files, utils::none, utils::none);
 }

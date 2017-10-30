@@ -4,6 +4,8 @@
 
 #include "header.h"
 #include "compact_lang_det.h"
+#include "../buffered_map.h"
+
 #include <boost/iostreams/filter/line.hpp>
 #include <iostream>
 #include <sstream>
@@ -24,6 +26,7 @@ namespace mono {
 
             int flags;
             bool print_stats;
+            buffered_map bmap;
 
             std::string output_folder;
             std::string header;
@@ -34,7 +37,7 @@ namespace mono {
 
             std::vector<std::string> modes = std::vector<std::string>();
 
-            LangsplitFilter(std::string output_folder_);
+            LangsplitFilter(std::string output_folder_, bool print_stats_);
 
             virtual ~LangsplitFilter();
 
@@ -42,9 +45,11 @@ namespace mono {
             void close(Sink &snk, BOOST_IOS::openmode which) {
               boost::iostreams::line_filter::close(snk, which);
 
-              string_type line = PrintLanguageStats(flags, header, text_buffer, print_stats);
+              string_type line = PrintLanguageStats(flags, header, text_buffer);
               std::streamsize amt = static_cast<std::streamsize>(line.size());
               boost::iostreams::write_if(snk, line.data(), amt);
+
+              bmap.flush();
             }
 
 
@@ -57,14 +62,10 @@ namespace mono {
             int get_flag(std::vector<std::string> modes);
 
             std::string PrintLanguageStats(const int flags, const std::string &header,
-                                           const std::string &buffer, const bool print_stats);
+                                           const std::string &buffer);
 
             std::string output_chunk(const std::string buffer, const CLD2::ResultChunk &rc, const std::string header,
                                      const std::string lang_code);
-
-            std::string
-            output_stats(const std::string buffer, const std::string header, int percent3[], CLD2::Language language3[],
-                         double normalized_score3[]);
 
         };
 

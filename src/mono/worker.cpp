@@ -24,16 +24,16 @@
 namespace mono {
 
     void run_worker(shared_vector_string *files_to_process,
-                    utils::progress *prog, bool curl, std::string output_folder,
+                    utils::progress *prog, bool curl, bool print_stats, std::string output_folder,
                     utils::compression_option input_compr,
                     utils::compression_option output_compr) {
 
       while (files_to_process->size() > 0) {
         std::string path = files_to_process->pop();
         if (curl) {
-          worker_curl(path, output_folder, input_compr, output_compr);
+          worker_curl(path, print_stats, output_folder, input_compr, output_compr);
         } else {
-          worker_file(path, output_folder, input_compr, output_compr);
+          worker_file(path, print_stats, output_folder, input_compr, output_compr);
         }
 
         prog->increment();
@@ -42,7 +42,7 @@ namespace mono {
     }
 
     void
-    worker_file(std::string path, std::string output_folder, utils::compression_option input_compr,
+    worker_file(std::string path, bool print_stats, std::string output_folder, utils::compression_option input_compr,
                 utils::compression_option output_compr) {
 
       std::ios_base::openmode flags = std::ofstream::in;
@@ -62,7 +62,7 @@ namespace mono {
       add_decompression(&qout, input_compr);
 
       qout.push(filters::WARCFilter());
-      qout.push(filters::LangsplitFilter(output_folder));
+      qout.push(filters::LangsplitFilter(output_folder, print_stats));
       qout.push(filters::LangCollectorFilter(output_folder, output_compr));
       qout.push(boost::iostreams::null_sink());
 
@@ -71,15 +71,16 @@ namespace mono {
 
     }
 
-    void worker_curl(std::string url, std::string output_folder, utils::compression_option input_compr,
-                     utils::compression_option output_compr) {
+    void
+    worker_curl(std::string url, bool print_stats, std::string output_folder, utils::compression_option input_compr,
+                utils::compression_option output_compr) {
 
       boost::iostreams::filtering_streambuf<boost::iostreams::output> qout;
 
       add_decompression(&qout, input_compr);
 
       qout.push(filters::WARCFilter());
-      qout.push(filters::LangsplitFilter(output_folder));
+      qout.push(filters::LangsplitFilter(output_folder, print_stats));
       qout.push(filters::LangCollectorFilter(output_folder, output_compr));
       qout.push(boost::iostreams::null_sink());
 
